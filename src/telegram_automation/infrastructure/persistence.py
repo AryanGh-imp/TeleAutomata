@@ -13,7 +13,11 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from telegram_automation.domain.models import OperationStatus
+from telegram_automation.domain.models import (
+    ExecutionRecordView,
+    OperationRecordView,
+    OperationStatus,
+)
 
 
 class Base(DeclarativeBase):
@@ -140,6 +144,54 @@ class OperationRepository:
                 )
             )
             return [OperationStatus(status) for status in rows]
+
+    async def list_executions(self, limit: int = 20) -> list[ExecutionRecordView]:
+        """Return the most recent executions, newest first."""
+        async with self._sessions() as session:
+            statement = (
+                select(ExecutionRecord).order_by(ExecutionRecord.created_at.desc()).limit(limit)
+            )
+            records = list((await session.scalars(statement)).all())
+        return [_execution_view(record) for record in records]
+
+    async def get_execution(self, execution_id: UUID) -> ExecutionRecordView | None:
+        async with self._sessions() as session:
+            record = await session.get(ExecutionRecord, str(execution_id))
+            return _execution_view(record) if record is not None else None
+
+    async def operations(self, execution_id: UUID) -> list[OperationRecordView]:
+        """Return every operation for an execution in creation order."""
+        async with self._sessions() as session:
+            statement = (
+                select(OperationRecord)
+                .where(OperationRecord.execution_id == str(execution_id))
+                .order_by(OperationRecord.created_at.asc())
+            )
+            records = list((await session.scalars(statement)).all())
+        return [_operation_view(record) for record in records]
+
+
+def _execution_view(record: ExecutionRecord) -> ExecutionRecordView:
+    return ExecutionRecordView(
+        execution_id=UUID(record.id),
+        workflow_name=record.workflow_name,
+        account=record.account,
+        status=OperationStatus(record.status),
+        created_at=record.created_at,
+        completed_at=record.completed_at,
+    )
+
+
+def _operation_view(record: OperationRecord) -> OperationRecordView:
+    return OperationRecordView(
+        action_id=record.action_id,
+        action_type=record.action_type,
+        status=OperationStatus(record.status),
+        attempts=record.attempts,
+        error_code=record.error_code,
+        error_detail=record.error_detail,
+        updated_at=record.updated_at,
+    )
 
 
 def build_engine(database_url: str) -> AsyncEngine:

@@ -36,3 +36,28 @@ class ExecutionSummary:
     succeeded: int
     failed: int
     skipped: int
+
+
+@dataclass(frozen=True, slots=True)
+class ExecutionRecordView:
+    """Read model for a persisted execution, used by reporting commands."""
+
+    execution_id: UUID
+    workflow_name: str
+    account: str
+    status: OperationStatus
+    created_at: datetime
+    completed_at: datetime | None
+
+
+@dataclass(frozen=True, slots=True)
+class OperationRecordView:
+    """Read model for a persisted operation within an execution."""
+
+    action_id: str
+    action_type: str
+    status: OperationStatus
+    attempts: int
+    error_code: str | None
+    error_detail: str | None
+    updated_at: datetime
