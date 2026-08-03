@@ -74,6 +74,18 @@ class NullGateway:
     async def unpin_dialog(self, target: str) -> dict[str, Any]:
         return self._forbid("unpin_dialog")
 
+    async def join_channel(self, target: str) -> dict[str, Any]:
+        return self._forbid("join_channel")
+
+    async def leave_channel(self, target: str) -> dict[str, Any]:
+        return self._forbid("leave_channel")
+
+    async def join_group(self, target: str) -> dict[str, Any]:
+        return self._forbid("join_group")
+
+    async def leave_group(self, target: str) -> dict[str, Any]:
+        return self._forbid("leave_group")
+
     @staticmethod
     def _forbid(action: str) -> dict[str, Any]:
         raise PermanentActionError(

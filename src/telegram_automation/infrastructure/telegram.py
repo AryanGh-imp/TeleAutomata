@@ -4,6 +4,7 @@ from typing import Any, NoReturn
 from telethon import TelegramClient, errors, functions
 from telethon.tl.types import (
     Channel,
+    Chat,
     InputDialogPeer,
     InputNotifyPeer,
     InputPeerNotifySettings,
@@ -12,8 +13,25 @@ from telethon.tl.types import (
 from telegram_automation.domain.errors import (
     PermanentActionError,
     RateLimitError,
+    TelegramAutomationError,
     TransientActionError,
 )
+
+
+def _invite_hash(target: str) -> str | None:
+    """Return the invite hash if ``target`` is a private invite link, else None.
+
+    Recognises ``t.me/+HASH``, ``t.me/joinchat/HASH`` and bare ``+HASH`` forms.
+    Public ``@username`` / ``t.me/username`` targets return None and are joined
+    by resolving the entity instead.
+    """
+    value = target.strip()
+    for marker in ("joinchat/", "/+", "t.me/+"):
+        if marker in value:
+            return value.split(marker, 1)[1].split("/", 1)[0] or None
+    if value.startswith("+"):
+        return value[1:] or None
+    return None
 
 
 class TelethonGateway:
@@ -214,8 +232,61 @@ class TelethonGateway:
         except Exception as exc:
             self._raise_translated(exc)
 
+    async def join_channel(self, target: str) -> dict[str, Any]:
+        try:
+            await self._join(target)
+            return {"target": target, "joined": True}
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def join_group(self, target: str) -> dict[str, Any]:
+        # A public supergroup joins exactly like a channel; a private group joins
+        # via its invite link. Both cases are handled by the shared helper.
+        try:
+            await self._join(target)
+            return {"target": target, "joined": True}
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def _join(self, target: str) -> None:
+        invite_hash = _invite_hash(target)
+        if invite_hash is not None:
+            await self._client(functions.messages.ImportChatInviteRequest(hash=invite_hash))
+        else:
+            entity = await self._client.get_input_entity(target)
+            await self._client(functions.channels.JoinChannelRequest(entity))
+
+    async def leave_channel(self, target: str) -> dict[str, Any]:
+        try:
+            entity = await self._client.get_input_entity(target)
+            await self._client(functions.channels.LeaveChannelRequest(entity))
+            return {"target": target, "left": True}
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def leave_group(self, target: str) -> dict[str, Any]:
+        try:
+            entity = await self._client.get_entity(target)
+            if isinstance(entity, Channel):
+                await self._client(functions.channels.LeaveChannelRequest(entity))
+            elif isinstance(entity, Chat):
+                me = await self._client.get_input_entity("me")
+                await self._client(
+                    functions.messages.DeleteChatUserRequest(chat_id=entity.id, user_id=me)
+                )
+            else:
+                raise PermanentActionError(f"target '{target}' is not a group")
+            return {"target": target, "left": True}
+        except Exception as exc:
+            self._raise_translated(exc)
+
     @staticmethod
     def _raise_translated(exc: Exception) -> NoReturn:
+        # A domain error raised inside a handler already carries the right
+        # semantics; re-translating it would misclassify it (e.g. downgrade a
+        # PermanentActionError to transient). Let it propagate unchanged.
+        if isinstance(exc, TelegramAutomationError):
+            raise exc
         if isinstance(exc, errors.FloodWaitError):
             raise RateLimitError(exc.seconds) from exc
         if isinstance(

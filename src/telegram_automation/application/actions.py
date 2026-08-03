@@ -208,6 +208,26 @@ async def _unpin_dialog(gateway: TelegramGateway, arguments: dict[str, Any]) -> 
     return await gateway.unpin_dialog(_string(arguments, "target"))
 
 
+@registry.register("join_channel")
+async def _join_channel(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.join_channel(_string(arguments, "target"))
+
+
+@registry.register("leave_channel")
+async def _leave_channel(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.leave_channel(_string(arguments, "target"))
+
+
+@registry.register("join_group")
+async def _join_group(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.join_group(_string(arguments, "target"))
+
+
+@registry.register("leave_group")
+async def _leave_group(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.leave_group(_string(arguments, "target"))
+
+
 async def execute_action(gateway: TelegramGateway, action: ActionDefinition) -> dict[str, Any]:
     """Validate an action's input and dispatch it to its registered gateway call."""
     return await registry.handler(action.type)(gateway, action.with_)

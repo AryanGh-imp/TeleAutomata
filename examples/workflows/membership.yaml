@@ -1,0 +1,17 @@
+version: 1
+name: membership
+account: primary
+dry_run: true
+actions:
+  - id: join_public_channel
+    type: join_channel
+    with:
+      target: "@durov"
+  - id: join_private_group
+    type: join_group
+    with:
+      target: "https://t.me/+AbCdEfGhIjK"
+  - id: leave_old_channel
+    type: leave_channel
+    with:
+      target: "@some_old_channel"

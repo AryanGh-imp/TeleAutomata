@@ -24,6 +24,10 @@ ActionType = Literal[
     "unmute_dialog",
     "pin_dialog",
     "unpin_dialog",
+    "join_channel",
+    "leave_channel",
+    "join_group",
+    "leave_group",
 ]
 
 

@@ -28,16 +28,19 @@ Implemented so far:
 - [x] pin_message, unpin_message, edit_message, delete_message
 - [x] forward_message, reply_message, mark_read, archive_chat
 - [x] Dialogs: mark_unread, mute_dialog, unmute_dialog, pin_dialog, unpin_dialog
+- [x] Membership: join_channel, leave_channel, join_group, leave_group
 
 Planned (grouped as in the spec). Some entries are marked **N/A** because the
 account-level MTProto API does not support them and the framework will not fake
 them:
 
-- [ ] Group: join_group, leave_group, migrate_group_to_supergroup,
-      export_group_information; delete_group **N/A** (no account-level API),
-      clone_group_settings / archive_group map to existing update/archive
-- [ ] Channel: join_channel, leave_channel, update_channel, clone_channel_settings;
-      delete_channel is `channels.DeleteChannel` (creator only)
+- [ ] Group: migrate_group_to_supergroup, export_group_information;
+      delete_group **N/A** (no account-level API), clone_group_settings /
+      archive_group map to existing update/archive; join_group / leave_group
+      **done** (see above)
+- [ ] Channel: update_channel, clone_channel_settings; delete_channel is
+      `channels.DeleteChannel` (creator only); join_channel / leave_channel
+      **done** (see above)
 - [ ] Chat settings: update_username, update_photo, remove_photo,
       update_invite_link, revoke_invite_link, enable/disable_join_requests,
       update_default_permissions, slow_mode, reactions, signatures,

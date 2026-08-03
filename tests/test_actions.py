@@ -91,6 +91,22 @@ class RecordingGateway:
         self.calls.append(("unpin_dialog", (target,)))
         return {"ok": "unpin_dialog"}
 
+    async def join_channel(self, target: str) -> dict[str, Any]:
+        self.calls.append(("join_channel", (target,)))
+        return {"ok": "join_channel"}
+
+    async def leave_channel(self, target: str) -> dict[str, Any]:
+        self.calls.append(("leave_channel", (target,)))
+        return {"ok": "leave_channel"}
+
+    async def join_group(self, target: str) -> dict[str, Any]:
+        self.calls.append(("join_group", (target,)))
+        return {"ok": "join_group"}
+
+    async def leave_group(self, target: str) -> dict[str, Any]:
+        self.calls.append(("leave_group", (target,)))
+        return {"ok": "leave_group"}
+
 
 def _action(action_type: str, **arguments: Any) -> ActionDefinition:
     return ActionDefinition.model_validate({"id": "action", "type": action_type, "with": arguments})
@@ -238,7 +254,17 @@ async def test_archive_chat_forwards_target() -> None:
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "action_type",
-    ["mark_unread", "mute_dialog", "unmute_dialog", "pin_dialog", "unpin_dialog"],
+    [
+        "mark_unread",
+        "mute_dialog",
+        "unmute_dialog",
+        "pin_dialog",
+        "unpin_dialog",
+        "join_channel",
+        "leave_channel",
+        "join_group",
+        "leave_group",
+    ],
 )
 async def test_dialog_actions_forward_target(action_type: str) -> None:
     gateway = RecordingGateway()
@@ -249,7 +275,17 @@ async def test_dialog_actions_forward_target(action_type: str) -> None:
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "action_type",
-    ["mark_unread", "mute_dialog", "unmute_dialog", "pin_dialog", "unpin_dialog"],
+    [
+        "mark_unread",
+        "mute_dialog",
+        "unmute_dialog",
+        "pin_dialog",
+        "unpin_dialog",
+        "join_channel",
+        "leave_channel",
+        "join_group",
+        "leave_group",
+    ],
 )
 async def test_dialog_actions_require_target(action_type: str) -> None:
     gateway = RecordingGateway()
