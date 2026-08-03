@@ -11,7 +11,13 @@ ActionType = Literal["create_group", "create_channel", "update_entity", "send_me
 class RetryPolicy(BaseModel):
     max_attempts: int = Field(default=3, ge=1, le=10)
     initial_delay_seconds: float = Field(default=1.0, ge=0.1, le=300)
-    max_delay_seconds: float = Field(default=60.0, ge=1, le=3600)
+    max_delay_seconds: float = Field(default=60.0, ge=0.1, le=3600)
+
+    @model_validator(mode="after")
+    def validate_delay_bounds(self) -> "RetryPolicy":
+        if self.max_delay_seconds < self.initial_delay_seconds:
+            raise ValueError("max_delay_seconds must be >= initial_delay_seconds")
+        return self
 
 
 class ActionDefinition(BaseModel):
