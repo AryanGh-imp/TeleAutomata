@@ -29,7 +29,8 @@ Implemented so far:
 - [x] forward_message, reply_message, mark_read, archive_chat
 - [x] Dialogs: mark_unread, mute_dialog, unmute_dialog, pin_dialog, unpin_dialog
 - [x] Membership: join_channel, leave_channel, join_group, leave_group
-- [x] Members: add_members, remove_members, ban_members, unban_members
+- [x] Members: add_members, remove_members, ban_members, unban_members,
+      mute_members, unmute_members, restrict_members
       (multi-target: inline list, users_csv file, or both; per-user failure isolation)
 
 Planned (grouped as in the spec). Some entries are marked **N/A** because the
@@ -47,8 +48,11 @@ them:
       update_invite_link, revoke_invite_link, enable/disable_join_requests,
       update_default_permissions, slow_mode, reactions, signatures,
       linked_discussion
-- [ ] Members: add/remove/ban/unban/kick/mute/unmute/restrict/restore, with
-      single / multiple / CSV / YAML-list / username / id targeting
+- [x] Members: add/remove/ban/unban/mute/unmute/restrict done (see above), with
+      single / multiple / CSV / YAML-list / username / id targeting. `kick`
+      folds into `remove_members` (both `kick_participant`, no lasting ban) and
+      `restore` folds into `unban_members` (both clear all banned rights); the
+      framework does not ship duplicate handlers for identical MTProto calls
 - [ ] Admins: promote_admin, demote_admin, update_admin_permissions,
       transfer_ownership (Telegram permits only with 2FA + constraints)
 - [ ] Messages: send_multiple, schedule, delete_multiple, copy, send_media/album/

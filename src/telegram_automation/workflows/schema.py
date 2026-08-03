@@ -32,6 +32,9 @@ ActionType = Literal[
     "remove_members",
     "ban_members",
     "unban_members",
+    "mute_members",
+    "unmute_members",
+    "restrict_members",
 ]
 
 

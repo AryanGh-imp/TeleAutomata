@@ -19,3 +19,17 @@ actions:
     with:
       target: "@my_group"
       users: ["@former_member"]
+  - id: mute_noisy
+    type: mute_members
+    with:
+      target: "@my_group"
+      users: ["@loud_member"]
+  - id: restrict_media
+    type: restrict_members
+    with:
+      target: "@my_group"
+      users: ["@link_spammer"]
+      # false = remove the right; omitted rights stay allowed.
+      permissions:
+        send_media: false
+        embed_link_previews: false

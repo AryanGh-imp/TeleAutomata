@@ -8,6 +8,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Member restriction actions: `mute_members`, `unmute_members`, and
+  `restrict_members`. `restrict_members` takes a validated `permissions` mapping
+  of Telegram rights to booleans (`false` removes a right); `view_messages` is
+  rejected since a full ban is owned by `ban_members`. All three share the
+  multi-target input and per-user failure isolation of the other member actions.
+
 - `list`, `history`, and `status` CLI commands for read-only introspection of
   workflow files and recorded executions.
 - `ExecutionRecordView` and `OperationRecordView` read models, backed by

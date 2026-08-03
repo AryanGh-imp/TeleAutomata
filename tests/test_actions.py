@@ -123,6 +123,20 @@ class RecordingGateway:
         self.calls.append(("unban_members", (target, users)))
         return {"unbanned": users, "failed": []}
 
+    async def mute_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        self.calls.append(("mute_members", (target, users)))
+        return {"muted": users, "failed": []}
+
+    async def unmute_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        self.calls.append(("unmute_members", (target, users)))
+        return {"unmuted": users, "failed": []}
+
+    async def restrict_members(
+        self, target: str, users: list[str], permissions: dict[str, bool]
+    ) -> dict[str, Any]:
+        self.calls.append(("restrict_members", (target, users, permissions)))
+        return {"restricted": users, "failed": []}
+
 
 def _action(action_type: str, **arguments: Any) -> ActionDefinition:
     return ActionDefinition.model_validate({"id": "action", "type": action_type, "with": arguments})
@@ -396,6 +410,85 @@ async def test_member_actions_reject_missing_csv() -> None:
     with pytest.raises(PermanentActionError, match="cannot read users_csv"):
         await execute_action(
             gateway, _action("add_members", target="@grp", users_csv="does_not_exist.csv")
+        )
+    assert gateway.calls == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("action_type", "key"),
+    [("mute_members", "muted"), ("unmute_members", "unmuted")],
+)
+async def test_mute_actions_forward_target_and_users(action_type: str, key: str) -> None:
+    gateway = RecordingGateway()
+    result = await execute_action(gateway, _action(action_type, target="@grp", users=["@a", "@b"]))
+    assert gateway.calls == [(action_type, ("@grp", ["@a", "@b"]))]
+    assert result[key] == ["@a", "@b"]
+
+
+@pytest.mark.asyncio
+async def test_restrict_members_forwards_permissions() -> None:
+    gateway = RecordingGateway()
+    result = await execute_action(
+        gateway,
+        _action(
+            "restrict_members",
+            target="@grp",
+            users=["@a"],
+            permissions={"send_media": False, "send_polls": False},
+        ),
+    )
+    assert gateway.calls == [
+        ("restrict_members", ("@grp", ["@a"], {"send_media": False, "send_polls": False}))
+    ]
+    assert result["restricted"] == ["@a"]
+
+
+@pytest.mark.asyncio
+async def test_restrict_members_requires_permissions() -> None:
+    gateway = RecordingGateway()
+    with pytest.raises(PermanentActionError, match="'permissions' must be a non-empty mapping"):
+        await execute_action(gateway, _action("restrict_members", target="@grp", users=["@a"]))
+    assert gateway.calls == []
+
+
+@pytest.mark.asyncio
+async def test_restrict_members_rejects_unknown_permission() -> None:
+    gateway = RecordingGateway()
+    with pytest.raises(PermanentActionError, match="unknown permission 'fly'"):
+        await execute_action(
+            gateway,
+            _action("restrict_members", target="@grp", users=["@a"], permissions={"fly": False}),
+        )
+    assert gateway.calls == []
+
+
+@pytest.mark.asyncio
+async def test_restrict_members_rejects_non_bool_permission() -> None:
+    gateway = RecordingGateway()
+    with pytest.raises(PermanentActionError, match="permission 'send_media' must be a boolean"):
+        await execute_action(
+            gateway,
+            _action(
+                "restrict_members", target="@grp", users=["@a"], permissions={"send_media": "no"}
+            ),
+        )
+    assert gateway.calls == []
+
+
+@pytest.mark.asyncio
+async def test_restrict_members_rejects_view_messages_as_unknown() -> None:
+    # view_messages is a full ban; restrict_members must not accept it.
+    gateway = RecordingGateway()
+    with pytest.raises(PermanentActionError, match="unknown permission 'view_messages'"):
+        await execute_action(
+            gateway,
+            _action(
+                "restrict_members",
+                target="@grp",
+                users=["@a"],
+                permissions={"view_messages": False},
+            ),
         )
     assert gateway.calls == []
 

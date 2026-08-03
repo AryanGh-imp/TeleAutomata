@@ -290,6 +290,64 @@ async def _unban_members(gateway: TelegramGateway, arguments: dict[str, Any]) ->
     return await gateway.unban_members(_string(arguments, "target"), _user_targets(arguments))
 
 
+#: Per-user rights that :meth:`restrict_members` may toggle. ``view_messages`` is
+#: intentionally excluded: revoking it is a full ban, which ``ban_members`` owns.
+RESTRICTABLE_RIGHTS = frozenset(
+    {
+        "send_messages",
+        "send_media",
+        "send_stickers",
+        "send_gifs",
+        "send_games",
+        "send_inline",
+        "embed_link_previews",
+        "send_polls",
+        "change_info",
+        "invite_users",
+        "pin_messages",
+    }
+)
+
+
+def _permissions(arguments: dict[str, Any]) -> dict[str, bool]:
+    """Validate the ``permissions`` mapping for ``restrict_members``.
+
+    Each key must name a known right and each value must be a bool. ``False``
+    applies a restriction (removes the permission); ``True`` lifts it. At least
+    one right is required so the action always has an effect.
+    """
+    value = arguments.get("permissions")
+    if not isinstance(value, dict) or not value:
+        raise PermanentActionError("'permissions' must be a non-empty mapping of right -> bool")
+    permissions: dict[str, bool] = {}
+    for right, allowed in value.items():
+        if right not in RESTRICTABLE_RIGHTS:
+            raise PermanentActionError(
+                f"unknown permission '{right}'; allowed: {sorted(RESTRICTABLE_RIGHTS)}"
+            )
+        if not isinstance(allowed, bool):
+            raise PermanentActionError(f"permission '{right}' must be a boolean")
+        permissions[right] = allowed
+    return permissions
+
+
+@registry.register("mute_members")
+async def _mute_members(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.mute_members(_string(arguments, "target"), _user_targets(arguments))
+
+
+@registry.register("unmute_members")
+async def _unmute_members(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.unmute_members(_string(arguments, "target"), _user_targets(arguments))
+
+
+@registry.register("restrict_members")
+async def _restrict_members(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.restrict_members(
+        _string(arguments, "target"), _user_targets(arguments), _permissions(arguments)
+    )
+
+
 async def execute_action(gateway: TelegramGateway, action: ActionDefinition) -> dict[str, Any]:
     """Validate an action's input and dispatch it to its registered gateway call."""
     return await registry.handler(action.type)(gateway, action.with_)

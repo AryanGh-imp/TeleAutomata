@@ -321,6 +321,31 @@ class TelethonGateway:
 
         return await self._for_each_user(target, users, _unban, "unbanned")
 
+    async def mute_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        async def _mute(user_entity: Any) -> None:
+            # Revoke only send_messages; other rights stay at their default True.
+            await self._client.edit_permissions(target, user_entity, send_messages=False)
+
+        return await self._for_each_user(target, users, _mute, "muted")
+
+    async def unmute_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        async def _unmute(user_entity: Any) -> None:
+            # Telethon sets the banned-rights set as a whole, so restoring
+            # send_messages (default True) lifts any send restriction.
+            await self._client.edit_permissions(target, user_entity, send_messages=True)
+
+        return await self._for_each_user(target, users, _unmute, "unmuted")
+
+    async def restrict_members(
+        self, target: str, users: list[str], permissions: dict[str, bool]
+    ) -> dict[str, Any]:
+        async def _restrict(user_entity: Any) -> None:
+            # Unlisted rights fall back to edit_permissions' True default, so the
+            # call restricts exactly the rights the caller set to False.
+            await self._client.edit_permissions(target, user_entity, **permissions)
+
+        return await self._for_each_user(target, users, _restrict, "restricted")
+
     async def _for_each_user(
         self,
         target: str,

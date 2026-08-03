@@ -98,6 +98,17 @@ class NullGateway:
     async def unban_members(self, target: str, users: list[str]) -> dict[str, Any]:
         return self._forbid("unban_members")
 
+    async def mute_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        return self._forbid("mute_members")
+
+    async def unmute_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        return self._forbid("unmute_members")
+
+    async def restrict_members(
+        self, target: str, users: list[str], permissions: dict[str, bool]
+    ) -> dict[str, Any]:
+        return self._forbid("restrict_members")
+
     @staticmethod
     def _forbid(action: str) -> dict[str, Any]:
         raise PermanentActionError(
