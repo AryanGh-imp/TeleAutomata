@@ -59,6 +59,21 @@ class NullGateway:
     async def archive_chat(self, target: str) -> dict[str, Any]:
         return self._forbid("archive_chat")
 
+    async def mark_unread(self, target: str) -> dict[str, Any]:
+        return self._forbid("mark_unread")
+
+    async def mute_dialog(self, target: str) -> dict[str, Any]:
+        return self._forbid("mute_dialog")
+
+    async def unmute_dialog(self, target: str) -> dict[str, Any]:
+        return self._forbid("unmute_dialog")
+
+    async def pin_dialog(self, target: str) -> dict[str, Any]:
+        return self._forbid("pin_dialog")
+
+    async def unpin_dialog(self, target: str) -> dict[str, Any]:
+        return self._forbid("unpin_dialog")
+
     @staticmethod
     def _forbid(action: str) -> dict[str, Any]:
         raise PermanentActionError(

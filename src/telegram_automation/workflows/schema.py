@@ -19,6 +19,11 @@ ActionType = Literal[
     "reply_message",
     "mark_read",
     "archive_chat",
+    "mark_unread",
+    "mute_dialog",
+    "unmute_dialog",
+    "pin_dialog",
+    "unpin_dialog",
 ]
 
 

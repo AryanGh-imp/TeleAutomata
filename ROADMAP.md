@@ -27,6 +27,7 @@ Implemented so far:
 - [x] create_group, create_channel, update_entity, send_message, resolve_target
 - [x] pin_message, unpin_message, edit_message, delete_message
 - [x] forward_message, reply_message, mark_read, archive_chat
+- [x] Dialogs: mark_unread, mute_dialog, unmute_dialog, pin_dialog, unpin_dialog
 
 Planned (grouped as in the spec). Some entries are marked **N/A** because the
 account-level MTProto API does not support them and the framework will not fake
@@ -52,7 +53,7 @@ them:
 - [ ] Profile: update_profile_name, update_bio, update_username, update_profile_photo
 - [ ] Sessions: list_sessions, revoke_session, logout
 - [ ] Contacts: add/remove/import/export
-- [ ] Dialogs: mark_unread, mute/unmute, pin/unpin dialog
+- [ ] Dialogs: mark_unread, mute/unmute, pin/unpin dialog **done** (see above)
 
 ## Phase 3 — Engine enhancements
 

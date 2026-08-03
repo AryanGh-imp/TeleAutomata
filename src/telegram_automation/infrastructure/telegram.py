@@ -2,7 +2,12 @@ from pathlib import Path
 from typing import Any, NoReturn
 
 from telethon import TelegramClient, errors, functions
-from telethon.tl.types import Channel
+from telethon.tl.types import (
+    Channel,
+    InputDialogPeer,
+    InputNotifyPeer,
+    InputPeerNotifySettings,
+)
 
 from telegram_automation.domain.errors import (
     PermanentActionError,
@@ -158,6 +163,54 @@ class TelethonGateway:
             # Folder 1 is Telegram's built-in Archive; folder 0 is the main list.
             await self._client.edit_folder(target, folder=1)
             return {"target": target, "archived": True}
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def mark_unread(self, target: str) -> dict[str, Any]:
+        try:
+            entity = await self._client.get_input_entity(target)
+            await self._client(functions.messages.MarkDialogUnreadRequest(peer=entity, unread=True))
+            return {"target": target, "unread": True}
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def mute_dialog(self, target: str) -> dict[str, Any]:
+        # mute_until far in the future is Telegram's idiom for "mute indefinitely".
+        return await self._set_mute(target, muted=True)
+
+    async def unmute_dialog(self, target: str) -> dict[str, Any]:
+        return await self._set_mute(target, muted=False)
+
+    async def _set_mute(self, target: str, *, muted: bool) -> dict[str, Any]:
+        try:
+            entity = await self._client.get_input_entity(target)
+            # 0 restores the default (unmuted); a large offset mutes effectively forever.
+            mute_until = 2**31 - 1 if muted else 0
+            await self._client(
+                functions.account.UpdateNotifySettingsRequest(
+                    peer=InputNotifyPeer(peer=entity),
+                    settings=InputPeerNotifySettings(mute_until=mute_until),
+                )
+            )
+            return {"target": target, "muted": muted}
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def pin_dialog(self, target: str) -> dict[str, Any]:
+        return await self._set_dialog_pin(target, pinned=True)
+
+    async def unpin_dialog(self, target: str) -> dict[str, Any]:
+        return await self._set_dialog_pin(target, pinned=False)
+
+    async def _set_dialog_pin(self, target: str, *, pinned: bool) -> dict[str, Any]:
+        try:
+            entity = await self._client.get_input_entity(target)
+            await self._client(
+                functions.messages.ToggleDialogPinRequest(
+                    peer=InputDialogPeer(peer=entity), pinned=pinned
+                )
+            )
+            return {"target": target, "pinned": pinned}
         except Exception as exc:
             self._raise_translated(exc)
 

@@ -183,6 +183,31 @@ async def _archive_chat(gateway: TelegramGateway, arguments: dict[str, Any]) -> 
     return await gateway.archive_chat(_string(arguments, "target"))
 
 
+@registry.register("mark_unread")
+async def _mark_unread(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.mark_unread(_string(arguments, "target"))
+
+
+@registry.register("mute_dialog")
+async def _mute_dialog(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.mute_dialog(_string(arguments, "target"))
+
+
+@registry.register("unmute_dialog")
+async def _unmute_dialog(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.unmute_dialog(_string(arguments, "target"))
+
+
+@registry.register("pin_dialog")
+async def _pin_dialog(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.pin_dialog(_string(arguments, "target"))
+
+
+@registry.register("unpin_dialog")
+async def _unpin_dialog(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.unpin_dialog(_string(arguments, "target"))
+
+
 async def execute_action(gateway: TelegramGateway, action: ActionDefinition) -> dict[str, Any]:
     """Validate an action's input and dispatch it to its registered gateway call."""
     return await registry.handler(action.type)(gateway, action.with_)

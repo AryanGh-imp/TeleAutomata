@@ -71,6 +71,26 @@ class RecordingGateway:
         self.calls.append(("archive_chat", (target,)))
         return {"ok": "archive_chat"}
 
+    async def mark_unread(self, target: str) -> dict[str, Any]:
+        self.calls.append(("mark_unread", (target,)))
+        return {"ok": "mark_unread"}
+
+    async def mute_dialog(self, target: str) -> dict[str, Any]:
+        self.calls.append(("mute_dialog", (target,)))
+        return {"ok": "mute_dialog"}
+
+    async def unmute_dialog(self, target: str) -> dict[str, Any]:
+        self.calls.append(("unmute_dialog", (target,)))
+        return {"ok": "unmute_dialog"}
+
+    async def pin_dialog(self, target: str) -> dict[str, Any]:
+        self.calls.append(("pin_dialog", (target,)))
+        return {"ok": "pin_dialog"}
+
+    async def unpin_dialog(self, target: str) -> dict[str, Any]:
+        self.calls.append(("unpin_dialog", (target,)))
+        return {"ok": "unpin_dialog"}
+
 
 def _action(action_type: str, **arguments: Any) -> ActionDefinition:
     return ActionDefinition.model_validate({"id": "action", "type": action_type, "with": arguments})
@@ -213,6 +233,29 @@ async def test_archive_chat_forwards_target() -> None:
     gateway = RecordingGateway()
     await execute_action(gateway, _action("archive_chat", target="@a"))
     assert gateway.calls == [("archive_chat", ("@a",))]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "action_type",
+    ["mark_unread", "mute_dialog", "unmute_dialog", "pin_dialog", "unpin_dialog"],
+)
+async def test_dialog_actions_forward_target(action_type: str) -> None:
+    gateway = RecordingGateway()
+    await execute_action(gateway, _action(action_type, target="@a"))
+    assert gateway.calls == [(action_type, ("@a",))]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "action_type",
+    ["mark_unread", "mute_dialog", "unmute_dialog", "pin_dialog", "unpin_dialog"],
+)
+async def test_dialog_actions_require_target(action_type: str) -> None:
+    gateway = RecordingGateway()
+    with pytest.raises(PermanentActionError, match="'target' must be a non-empty string"):
+        await execute_action(gateway, _action(action_type))
+    assert gateway.calls == []
 
 
 @pytest.mark.asyncio
