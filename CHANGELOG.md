@@ -8,6 +8,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- A top-level public API: `WorkflowEngine`, `load_workflow`, the workflow/action
+  schema models, the `TelegramGateway` port, the result/status read models, and
+  the error taxonomy are now importable directly from `teleautomata` (and the
+  exceptions from `teleautomata.errors`). These shallow paths are the stable
+  contract; the internal `domain` / `application` / `workflows` subpackages they
+  re-export from are no longer part of the public API and may be reorganized.
 - Member restriction actions: `mute_members`, `unmute_members`, and
   `restrict_members`. `restrict_members` takes a validated `permissions` mapping
   of Telegram rights to booleans (`false` removes a right); `view_messages` is

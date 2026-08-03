@@ -16,11 +16,15 @@ If you depend only on the Stable API, upgrading within a major version is safe.
 | Workflow YAML schema | Stable | `*.yml` / `*.yaml` files |
 | Action names, arguments, result keys | Stable | workflow `actions:` |
 | Configuration environment variables | Stable | env / `.env` |
-| Error taxonomy | Stable | `teleautomata.domain.errors` |
-| Workflow/action models | Stable | `teleautomata.workflows.schema` |
-| Domain models & gateway port | Stable | `teleautomata.domain` |
-| Engine & action registry | Stable | `teleautomata.application` |
-| Telethon / persistence / scheduling adapters | Internal | `teleautomata.infrastructure`, `.observability` |
+| Error taxonomy | Stable | `teleautomata.errors` |
+| Engine, registry, schema, models, gateway port | Stable | `teleautomata` |
+| Internal module layout (`domain`, `application`, `workflows`, `infrastructure`, …) | Internal | subpackages |
+
+Import the public API from the top-level `teleautomata` package (or
+`teleautomata.errors` for the exception family). The internal subpackage layout
+that these names re-export from — `domain`, `application`, `workflows`,
+`infrastructure` — is **not** part of the contract and may be reorganized
+between releases; do not import from it directly.
 
 ---
 
@@ -112,13 +116,13 @@ variable names and their meanings are stable:
 
 See [docs/configuration.md](docs/configuration.md).
 
-### 5. Error taxonomy — `teleautomata.domain.errors`
+### 5. Error taxonomy — `teleautomata.errors`
 
 The exception hierarchy is stable. Catch the base class to handle any framework
 error:
 
 ```python
-from teleautomata.domain.errors import TeleAutomataError
+from teleautomata.errors import TeleAutomataError
 ```
 
 - `TeleAutomataError` — base of every framework exception.
@@ -127,35 +131,41 @@ from teleautomata.domain.errors import TeleAutomataError
     - `RateLimitError(retry_after_seconds)` — Telegram flood-wait; the engine
       waits and retries.
 
-### 6. Domain layer — `teleautomata.domain`
+These names are also re-exported from the top-level `teleautomata` package.
 
-Stable value types used in return structures and read models:
+### 6. Models and gateway port — `teleautomata`
 
-- `teleautomata.domain.models` — `OperationStatus` (StrEnum), `ActionResult`,
-  `ExecutionSummary`, `ExecutionRecordView`, `OperationRecordView`.
-- `teleautomata.domain.ports` — `TelegramGateway`, the `Protocol` every adapter
-  satisfies. This is the **extension point** for custom gateways: implement the
-  protocol to target a different backend or a fake for testing.
+Stable value types used in return structures and read models, all importable
+from the top-level package:
+
+- `OperationStatus` (StrEnum), `ActionResult`, `ExecutionSummary`,
+  `ExecutionRecordView`, `OperationRecordView` — result and reporting types.
+- `TelegramGateway` — the `Protocol` every adapter satisfies. This is the
+  **extension point** for custom gateways: implement the protocol to target a
+  different backend or a fake for testing.
 
 `ExecutionSummary.status` is `OperationStatus.FAILED` only when an *untolerated*
 action failed; the `succeeded` / `failed` / `skipped` counts always report every
 action regardless of `continue_on_error`.
 
-### 7. Application layer — `teleautomata.application`
+### 7. Engine and action registry — `teleautomata`
 
-- `teleautomata.application.engine.WorkflowEngine` — constructs and runs a
-  workflow (DAG batching, retry/backoff, dry-run). Its constructor parameters
-  are stable.
-- `teleautomata.application.actions` — `execute_action`, and `registry`, the
-  typed action registry. The `@registry.register("<action_type>")` decorator is
-  the **extension point** for adding actions; `registry.action_types` and
+- `WorkflowEngine` — constructs and runs a workflow (DAG batching, retry/backoff,
+  dry-run). Its constructor parameters are stable.
+- `execute_action`, and `registry`, the typed action registry. The
+  `@registry.register("<action_type>")` decorator is the **extension point** for
+  adding actions; `registry.action_types` and
   `registry.assert_consistent_with_schema()` are stable.
 
-### 8. Workflow schema models — `teleautomata.workflows.schema`
+### 8. Workflow schema models — `teleautomata`
 
 `ActionType`, `RetryPolicy`, `ActionDefinition`, `WorkflowDefinition`, and
 `load_workflow` are stable and safe to import (e.g. to build or validate
 workflows programmatically).
+
+```python
+from teleautomata import WorkflowDefinition, WorkflowEngine, load_workflow
+```
 
 ---
 
