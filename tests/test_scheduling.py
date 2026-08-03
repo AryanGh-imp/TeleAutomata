@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from telegram_automation.infrastructure.scheduling import AccountRateLimiter, retry_delay
+from teleautomata.infrastructure.scheduling import AccountRateLimiter, retry_delay
 
 
 def test_retry_delay_never_exceeds_maximum() -> None:

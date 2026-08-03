@@ -8,7 +8,7 @@ adapters rationale, then use this as the interface reference.
 ## Package layout
 
 ```text
-telegram_automation/
+teleautomata/
 ├── domain/          # pure core: models, errors, the gateway port
 ├── application/     # orchestration: engine, action registry
 ├── infrastructure/  # adapters: Telethon, persistence, pacing, null gateway
@@ -129,7 +129,9 @@ db = build_engine(settings.database_url)
 await initialize_database(db)
 repository = OperationRepository(async_sessionmaker(db, expire_on_commit=False))
 engine = WorkflowEngine(
-    repository, gateway, AccountRateLimiter(settings.min_request_interval_seconds),
+    repository,
+    gateway,
+    AccountRateLimiter(settings.min_request_interval_seconds),
     max_concurrency=settings.max_concurrency,
     max_flood_wait_seconds=settings.max_flood_wait_seconds,
     default_retry=RetryPolicy(max_attempts=settings.max_retries + 1),

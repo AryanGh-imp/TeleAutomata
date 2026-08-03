@@ -2,9 +2,9 @@ from typing import Any, get_args
 
 import pytest
 
-from telegram_automation.application.actions import execute_action, registry
-from telegram_automation.domain.errors import PermanentActionError
-from telegram_automation.workflows.schema import ActionDefinition, ActionType
+from teleautomata.application.actions import execute_action, registry
+from teleautomata.domain.errors import PermanentActionError
+from teleautomata.workflows.schema import ActionDefinition, ActionType
 
 
 class RecordingGateway:

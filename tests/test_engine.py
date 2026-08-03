@@ -4,20 +4,20 @@ from typing import Any
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from telegram_automation.application.engine import WorkflowEngine
-from telegram_automation.domain.errors import (
+from teleautomata.application.engine import WorkflowEngine
+from teleautomata.domain.errors import (
     PermanentActionError,
     RateLimitError,
     TransientActionError,
 )
-from telegram_automation.domain.models import OperationStatus
-from telegram_automation.infrastructure.persistence import (
+from teleautomata.domain.models import OperationStatus
+from teleautomata.infrastructure.persistence import (
     OperationRepository,
     build_engine,
     initialize_database,
 )
-from telegram_automation.infrastructure.scheduling import AccountRateLimiter
-from telegram_automation.workflows.schema import RetryPolicy, WorkflowDefinition
+from teleautomata.infrastructure.scheduling import AccountRateLimiter
+from teleautomata.workflows.schema import RetryPolicy, WorkflowDefinition
 
 
 class FakeGateway:

@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from telegram_automation.domain.models import (
+from teleautomata.domain.models import (
     ExecutionRecordView,
     OperationRecordView,
     OperationStatus,

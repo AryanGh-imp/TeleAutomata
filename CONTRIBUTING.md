@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for improving the Telegram Automation Framework. This project favors
+Thank you for improving TeleAutomata. This project favors
 maintainability and operational safety over feature count, so contributions are
 reviewed against the existing architecture rather than added beside it.
 

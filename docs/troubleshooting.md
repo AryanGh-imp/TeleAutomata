@@ -10,7 +10,7 @@ confirm the workflow really has `dry_run: true`.
 ## "account '<name>' is not authenticated; run the auth command first"
 
 The session for that account does not exist or is not authorized. Run
-`telegram-automation auth <account>` and complete the interactive phone/2FA
+`teleautomata auth <account>` and complete the interactive phone/2FA
 prompt. The `account` field in the workflow selects which session under
 `SESSION_DIR` is used.
 
@@ -26,7 +26,7 @@ Persistent flood waits mean you are pacing too aggressively — increase
 
 Its dependency did not succeed. A `skipped` or `failed` dependency skips
 descendants unless the failing dependency is marked `continue_on_error: true`.
-Use `telegram-automation status <execution-id>` to see which upstream action
+Use `teleautomata status <execution-id>` to see which upstream action
 failed and why.
 
 ## "permanent_error" on an action
@@ -63,6 +63,6 @@ per-module override in `pyproject.toml`; keep all `telethon` imports inside
 
 ## Database questions
 
-Local `telegram-automation init` creates the current schema for a fresh SQLite
+Local `teleautomata init` creates the current schema for a fresh SQLite
 database. For production schema changes, set `DATABASE_URL` and run
 `alembic upgrade head`; review generated migrations before applying them.

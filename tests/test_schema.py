@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from telegram_automation.workflows.schema import WorkflowDefinition, load_workflow
+from teleautomata.workflows.schema import WorkflowDefinition, load_workflow
 
 
 def test_rejects_dependency_cycle() -> None:

@@ -2,9 +2,9 @@ from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any, get_args
 
-from telegram_automation.domain.errors import PermanentActionError
-from telegram_automation.domain.ports import TelegramGateway
-from telegram_automation.workflows.schema import ActionDefinition, ActionType
+from teleautomata.domain.errors import PermanentActionError
+from teleautomata.domain.ports import TelegramGateway
+from teleautomata.workflows.schema import ActionDefinition, ActionType
 
 ActionHandler = Callable[[TelegramGateway, dict[str, Any]], Awaitable[dict[str, Any]]]
 

@@ -1,4 +1,4 @@
-# Telegram Automation Framework
+# TeleAutomata
 
 A safety-first, asynchronous framework for managing Telegram groups and channels through durable, declarative workflows. It is a maintainable application—not a bulk-action script—and deliberately treats Telegram responses, permissions, and rate limits as authoritative.
 
@@ -12,25 +12,25 @@ python -m venv .venv
 pip install -e ".[dev]"
 Copy-Item .env.example .env
 # Edit .env; add your own API ID and API hash from my.telegram.org.
-telegram-automation init
-telegram-automation validate examples/workflows/create-channel.yaml
-telegram-automation run examples/workflows/create-channel.yaml
+teleautomata init
+teleautomata validate examples/workflows/create-channel.yaml
+teleautomata run examples/workflows/create-channel.yaml
 ```
 
 The example is `dry_run: true`, so it writes a planned execution but makes no Telegram request. Authenticate only when ready to use an account:
 
 ```powershell
-telegram-automation auth primary
+teleautomata auth primary
 ```
 
-To retry an interrupted or failed execution without rerunning recorded successful actions, use `telegram-automation resume <workflow.yml> <execution-id>`. Review non-idempotent action outcomes before resuming: Telegram may have accepted a request before a network interruption was observed.
+To retry an interrupted or failed execution without rerunning recorded successful actions, use `teleautomata resume <workflow.yml> <execution-id>`. Review non-idempotent action outcomes before resuming: Telegram may have accepted a request before a network interruption was observed.
 
 Inspect workflows and past runs without connecting to Telegram:
 
 ```powershell
-telegram-automation list examples/workflows   # validate and summarize every workflow
-telegram-automation history                    # recent executions
-telegram-automation status <execution-id>      # per-action detail for one execution
+teleautomata list examples/workflows   # validate and summarize every workflow
+teleautomata history                    # recent executions
+teleautomata status <execution-id>      # per-action detail for one execution
 ```
 
 Do not commit `.env` or the `sessions/` directory. Authentication is interactive; phone/2FA input is never placed in a workflow or database.

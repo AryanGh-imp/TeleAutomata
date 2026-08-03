@@ -1,13 +1,13 @@
 # CLI reference
 
-TeleAutomata ships a single command, `telegram-automation`, built with Typer.
+TeleAutomata ships a single command, `teleautomata`, built with Typer.
 Running it with no arguments prints help. Every command reads configuration from
 the environment and `.env`; see [configuration](configuration.md) for the full
 list of settings (credentials, `DATABASE_URL`, `LOG_LEVEL`, directories, and
 pacing).
 
 ```text
-telegram-automation [COMMAND] [ARGS]
+teleautomata [COMMAND] [ARGS]
 ```
 
 | Command | Purpose |
@@ -24,7 +24,7 @@ telegram-automation [COMMAND] [ARGS]
 ## init
 
 ```bash
-telegram-automation init
+teleautomata init
 ```
 
 Creates the session directory and initializes the operation database. Safe to
@@ -34,7 +34,7 @@ first real workflow.
 ## auth
 
 ```bash
-telegram-automation auth <account>
+teleautomata auth <account>
 ```
 
 Interactively signs in a session. `<account>` is a **local session name**, not a
@@ -47,7 +47,7 @@ by the app; only Telethon's session file is written, and it must be kept private
 ## validate
 
 ```bash
-telegram-automation validate <workflow.yaml>
+teleautomata validate <workflow.yaml>
 ```
 
 Loads and validates a workflow's structure, dependencies, and action arguments
@@ -57,7 +57,7 @@ success; a validation error is reported with a non-zero exit. Use this in CI.
 ## run
 
 ```bash
-telegram-automation run <workflow.yaml>
+teleautomata run <workflow.yaml>
 ```
 
 Executes a workflow. If the file sets `dry_run: true`, the run uses a guard
@@ -73,7 +73,7 @@ Execution <uuid>: succeeded; succeeded=3, failed=0, skipped=0
 ## resume
 
 ```bash
-telegram-automation resume <workflow.yaml> <execution_id>
+teleautomata resume <workflow.yaml> <execution_id>
 ```
 
 Re-runs only the actions that did not previously succeed, preserving completed
@@ -83,7 +83,7 @@ work. Pass the same workflow file and the execution id from the original run
 ## list
 
 ```bash
-telegram-automation list [directory]
+teleautomata list [directory]
 ```
 
 Lists every `*.yml`/`*.yaml` file in `directory` (default
@@ -94,7 +94,7 @@ without stopping the listing.
 ## history
 
 ```bash
-telegram-automation history [--limit N]
+teleautomata history [--limit N]
 ```
 
 Shows recent executions from the operation database, newest first. `--limit`
@@ -104,7 +104,7 @@ account, and start/completion times.
 ## status
 
 ```bash
-telegram-automation status <execution_id>
+teleautomata status <execution_id>
 ```
 
 Shows one execution and the status of each of its actions — action id, type,

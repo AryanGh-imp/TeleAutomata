@@ -24,7 +24,7 @@ bolted on. Use it responsibly and within Telegram's terms.
 `TELEGRAM_API_ID` and `TELEGRAM_API_HASH` are read from the environment (or a
 local `.env`) and used only to open a session. **The framework never writes them
 to disk or to the database.** Authentication is interactive through
-`telegram-automation auth`; your phone number and 2FA password are passed
+`teleautomata auth`; your phone number and 2FA password are passed
 straight to Telethon and never stored by this app. The only persisted secret is
 Telethon's own session file under the session directory, which is gitignored and
 should be treated as sensitive. See [security](security.md).
@@ -35,7 +35,7 @@ A workflow with `dry_run: true` runs against the `NullGateway`, whose every
 method raises. The engine plans and records each action as
 planned-but-not-run, so you can validate structure and intent with **no
 credentials and no network access**. It is the safe default for trying a
-workflow. `telegram-automation validate` goes further and checks a file without
+workflow. `teleautomata validate` goes further and checks a file without
 running anything at all.
 
 ## What happens when Telegram rate-limits me?
@@ -50,9 +50,9 @@ immediately without retrying.
 ## If a workflow fails halfway, do I start over?
 
 No. Every execution and action is persisted as it runs. Re-run with
-`telegram-automation resume <workflow> <execution_id>` and only the actions that
+`teleautomata resume <workflow> <execution_id>` and only the actions that
 did not already succeed are attempted again; completed work is preserved. Find
-the execution id with `telegram-automation history`.
+the execution id with `teleautomata history`.
 
 ## Why is the action library "only" ~30 actions?
 

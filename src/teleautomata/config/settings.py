@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     telegram_api_id: int | None = None
     telegram_api_hash: SecretStr | None = None
-    database_url: str = "sqlite+aiosqlite:///./data/telegram_automation.sqlite3"
+    database_url: str = "sqlite+aiosqlite:///./data/teleautomata.sqlite3"
     session_dir: Path = Path("./sessions")
     log_level: str = "INFO"
     max_concurrency: int = Field(default=2, ge=1, le=20)

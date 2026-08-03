@@ -1,6 +1,6 @@
 import pytest
 
-from telegram_automation.infrastructure.telegram import _invite_hash
+from teleautomata.infrastructure.telegram import _invite_hash
 
 
 @pytest.mark.parametrize(

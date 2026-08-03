@@ -4,8 +4,8 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from telegram_automation.domain.models import OperationStatus
-from telegram_automation.infrastructure.persistence import (
+from teleautomata.domain.models import OperationStatus
+from teleautomata.infrastructure.persistence import (
     OperationRepository,
     build_engine,
     initialize_database,

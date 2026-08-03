@@ -8,20 +8,20 @@ import typer
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 from telethon import TelegramClient
 
-from telegram_automation.application.engine import WorkflowEngine
-from telegram_automation.config.settings import Settings
-from telegram_automation.domain.models import ExecutionSummary
-from telegram_automation.domain.ports import TelegramGateway
-from telegram_automation.infrastructure.null_gateway import NullGateway
-from telegram_automation.infrastructure.persistence import (
+from teleautomata.application.engine import WorkflowEngine
+from teleautomata.config.settings import Settings
+from teleautomata.domain.models import ExecutionSummary
+from teleautomata.domain.ports import TelegramGateway
+from teleautomata.infrastructure.null_gateway import NullGateway
+from teleautomata.infrastructure.persistence import (
     OperationRepository,
     build_engine,
     initialize_database,
 )
-from telegram_automation.infrastructure.scheduling import AccountRateLimiter
-from telegram_automation.infrastructure.telegram import connect_gateway
-from telegram_automation.observability.logging import configure_logging
-from telegram_automation.workflows.schema import RetryPolicy, WorkflowDefinition, load_workflow
+from teleautomata.infrastructure.scheduling import AccountRateLimiter
+from teleautomata.infrastructure.telegram import connect_gateway
+from teleautomata.observability.logging import configure_logging
+from teleautomata.workflows.schema import RetryPolicy, WorkflowDefinition, load_workflow
 
 app = typer.Typer(help="Safety-first, workflow-driven Telegram automation.", no_args_is_help=True)
 

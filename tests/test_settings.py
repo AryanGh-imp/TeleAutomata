@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from telegram_automation.config.settings import Settings
+from teleautomata.config.settings import Settings
 
 
 def test_settings_reject_invalid_api_id() -> None:

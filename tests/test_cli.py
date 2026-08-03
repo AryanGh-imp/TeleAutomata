@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from telegram_automation.cli.main import app
+from teleautomata.cli.main import app
 
 runner = CliRunner()
 

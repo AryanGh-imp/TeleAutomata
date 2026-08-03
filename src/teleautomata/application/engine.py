@@ -3,17 +3,17 @@ from uuid import UUID
 
 import structlog
 
-from telegram_automation.application.actions import execute_action
-from telegram_automation.domain.errors import (
+from teleautomata.application.actions import execute_action
+from teleautomata.domain.errors import (
     PermanentActionError,
     RateLimitError,
     TransientActionError,
 )
-from telegram_automation.domain.models import ActionResult, ExecutionSummary, OperationStatus
-from telegram_automation.domain.ports import TelegramGateway
-from telegram_automation.infrastructure.persistence import OperationRepository
-from telegram_automation.infrastructure.scheduling import AccountRateLimiter, retry_delay
-from telegram_automation.workflows.schema import ActionDefinition, RetryPolicy, WorkflowDefinition
+from teleautomata.domain.models import ActionResult, ExecutionSummary, OperationStatus
+from teleautomata.domain.ports import TelegramGateway
+from teleautomata.infrastructure.persistence import OperationRepository
+from teleautomata.infrastructure.scheduling import AccountRateLimiter, retry_delay
+from teleautomata.workflows.schema import ActionDefinition, RetryPolicy, WorkflowDefinition
 
 log = structlog.get_logger(__name__)
 

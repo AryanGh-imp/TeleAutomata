@@ -11,7 +11,7 @@ from telethon.tl.types import (
     InputPeerNotifySettings,
 )
 
-from telegram_automation.domain.errors import (
+from teleautomata.domain.errors import (
     PermanentActionError,
     RateLimitError,
     TelegramAutomationError,

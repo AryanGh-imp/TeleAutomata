@@ -8,7 +8,7 @@ bug immediately instead of silently touching the network.
 
 from typing import Any
 
-from telegram_automation.domain.errors import PermanentActionError
+from teleautomata.domain.errors import PermanentActionError
 
 
 class NullGateway:
