@@ -87,6 +87,80 @@ class TelethonGateway:
         except Exception as exc:
             self._raise_translated(exc)
 
+    async def pin_message(self, target: str, message_id: int) -> dict[str, Any]:
+        try:
+            await self._client.pin_message(target, message_id)
+            return {"target": target, "message_id": message_id, "pinned": True}
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def unpin_message(self, target: str, message_id: int | None = None) -> dict[str, Any]:
+        try:
+            await self._client.unpin_message(target, message_id)
+            return {
+                "target": target,
+                "message_id": message_id,
+                "unpinned_all": message_id is None,
+            }
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def edit_message(self, target: str, message_id: int, text: str) -> dict[str, Any]:
+        try:
+            await self._client.edit_message(target, message_id, text)
+            return {"target": target, "message_id": message_id, "edited": True}
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def delete_message(self, target: str, message_id: int) -> dict[str, Any]:
+        try:
+            await self._client.delete_messages(target, [message_id])
+            return {"target": target, "message_id": message_id, "deleted": True}
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def forward_message(
+        self, from_target: str, to_target: str, message_id: int
+    ) -> dict[str, Any]:
+        try:
+            forwarded = await self._client.forward_messages(to_target, message_id, from_target)
+            return {
+                "from_target": from_target,
+                "to_target": to_target,
+                "message_id": message_id,
+                "forwarded_message_id": getattr(forwarded, "id", None),
+            }
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def reply_message(
+        self, target: str, reply_to_message_id: int, message: str
+    ) -> dict[str, Any]:
+        try:
+            sent = await self._client.send_message(target, message, reply_to=reply_to_message_id)
+            return {
+                "target": target,
+                "reply_to_message_id": reply_to_message_id,
+                "message_id": sent.id,
+            }
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def mark_read(self, target: str) -> dict[str, Any]:
+        try:
+            await self._client.send_read_acknowledge(target)
+            return {"target": target, "read": True}
+        except Exception as exc:
+            self._raise_translated(exc)
+
+    async def archive_chat(self, target: str) -> dict[str, Any]:
+        try:
+            # Folder 1 is Telegram's built-in Archive; folder 0 is the main list.
+            await self._client.edit_folder(target, folder=1)
+            return {"target": target, "archived": True}
+        except Exception as exc:
+            self._raise_translated(exc)
+
     @staticmethod
     def _raise_translated(exc: Exception) -> NoReturn:
         if isinstance(exc, errors.FloodWaitError):

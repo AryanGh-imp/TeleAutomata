@@ -31,6 +31,34 @@ class NullGateway:
     async def resolve_target(self, target: str) -> dict[str, Any]:
         return self._forbid("resolve_target")
 
+    async def pin_message(self, target: str, message_id: int) -> dict[str, Any]:
+        return self._forbid("pin_message")
+
+    async def unpin_message(self, target: str, message_id: int | None = None) -> dict[str, Any]:
+        return self._forbid("unpin_message")
+
+    async def edit_message(self, target: str, message_id: int, text: str) -> dict[str, Any]:
+        return self._forbid("edit_message")
+
+    async def delete_message(self, target: str, message_id: int) -> dict[str, Any]:
+        return self._forbid("delete_message")
+
+    async def forward_message(
+        self, from_target: str, to_target: str, message_id: int
+    ) -> dict[str, Any]:
+        return self._forbid("forward_message")
+
+    async def reply_message(
+        self, target: str, reply_to_message_id: int, message: str
+    ) -> dict[str, Any]:
+        return self._forbid("reply_message")
+
+    async def mark_read(self, target: str) -> dict[str, Any]:
+        return self._forbid("mark_read")
+
+    async def archive_chat(self, target: str) -> dict[str, Any]:
+        return self._forbid("archive_chat")
+
     @staticmethod
     def _forbid(action: str) -> dict[str, Any]:
         raise PermanentActionError(

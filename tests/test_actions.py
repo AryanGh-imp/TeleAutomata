@@ -1,10 +1,10 @@
-from typing import Any
+from typing import Any, get_args
 
 import pytest
 
-from telegram_automation.application.actions import execute_action
+from telegram_automation.application.actions import execute_action, registry
 from telegram_automation.domain.errors import PermanentActionError
-from telegram_automation.workflows.schema import ActionDefinition
+from telegram_automation.workflows.schema import ActionDefinition, ActionType
 
 
 class RecordingGateway:
@@ -34,6 +34,42 @@ class RecordingGateway:
     async def resolve_target(self, target: str) -> dict[str, Any]:
         self.calls.append(("resolve_target", (target,)))
         return {"ok": "resolve_target"}
+
+    async def pin_message(self, target: str, message_id: int) -> dict[str, Any]:
+        self.calls.append(("pin_message", (target, message_id)))
+        return {"ok": "pin_message"}
+
+    async def unpin_message(self, target: str, message_id: int | None = None) -> dict[str, Any]:
+        self.calls.append(("unpin_message", (target, message_id)))
+        return {"ok": "unpin_message"}
+
+    async def edit_message(self, target: str, message_id: int, text: str) -> dict[str, Any]:
+        self.calls.append(("edit_message", (target, message_id, text)))
+        return {"ok": "edit_message"}
+
+    async def delete_message(self, target: str, message_id: int) -> dict[str, Any]:
+        self.calls.append(("delete_message", (target, message_id)))
+        return {"ok": "delete_message"}
+
+    async def forward_message(
+        self, from_target: str, to_target: str, message_id: int
+    ) -> dict[str, Any]:
+        self.calls.append(("forward_message", (from_target, to_target, message_id)))
+        return {"ok": "forward_message"}
+
+    async def reply_message(
+        self, target: str, reply_to_message_id: int, message: str
+    ) -> dict[str, Any]:
+        self.calls.append(("reply_message", (target, reply_to_message_id, message)))
+        return {"ok": "reply_message"}
+
+    async def mark_read(self, target: str) -> dict[str, Any]:
+        self.calls.append(("mark_read", (target,)))
+        return {"ok": "mark_read"}
+
+    async def archive_chat(self, target: str) -> dict[str, Any]:
+        self.calls.append(("archive_chat", (target,)))
+        return {"ok": "archive_chat"}
 
 
 def _action(action_type: str, **arguments: Any) -> ActionDefinition:
@@ -117,3 +153,94 @@ async def test_optional_string_must_be_string_when_present() -> None:
     gateway = RecordingGateway()
     with pytest.raises(PermanentActionError, match="'title' must be a string"):
         await execute_action(gateway, _action("update_entity", target="@a", title=42))
+
+
+@pytest.mark.asyncio
+async def test_pin_message_forwards_target_and_id() -> None:
+    gateway = RecordingGateway()
+    await execute_action(gateway, _action("pin_message", target="@a", message_id=7))
+    assert gateway.calls == [("pin_message", ("@a", 7))]
+
+
+@pytest.mark.asyncio
+async def test_unpin_message_forwards_target_only() -> None:
+    gateway = RecordingGateway()
+    await execute_action(gateway, _action("unpin_message", target="@a"))
+    assert gateway.calls == [("unpin_message", ("@a", None))]
+
+
+@pytest.mark.asyncio
+async def test_edit_message_forwards_all_arguments() -> None:
+    gateway = RecordingGateway()
+    await execute_action(gateway, _action("edit_message", target="@a", message_id=7, text="new"))
+    assert gateway.calls == [("edit_message", ("@a", 7, "new"))]
+
+
+@pytest.mark.asyncio
+async def test_delete_message_forwards_target_and_id() -> None:
+    gateway = RecordingGateway()
+    await execute_action(gateway, _action("delete_message", target="@a", message_id=7))
+    assert gateway.calls == [("delete_message", ("@a", 7))]
+
+
+@pytest.mark.asyncio
+async def test_forward_message_forwards_all_arguments() -> None:
+    gateway = RecordingGateway()
+    await execute_action(
+        gateway, _action("forward_message", from_target="@a", to_target="@b", message_id=7)
+    )
+    assert gateway.calls == [("forward_message", ("@a", "@b", 7))]
+
+
+@pytest.mark.asyncio
+async def test_reply_message_forwards_all_arguments() -> None:
+    gateway = RecordingGateway()
+    await execute_action(
+        gateway, _action("reply_message", target="@a", reply_to_message_id=7, message="hi")
+    )
+    assert gateway.calls == [("reply_message", ("@a", 7, "hi"))]
+
+
+@pytest.mark.asyncio
+async def test_mark_read_forwards_target() -> None:
+    gateway = RecordingGateway()
+    await execute_action(gateway, _action("mark_read", target="@a"))
+    assert gateway.calls == [("mark_read", ("@a",))]
+
+
+@pytest.mark.asyncio
+async def test_archive_chat_forwards_target() -> None:
+    gateway = RecordingGateway()
+    await execute_action(gateway, _action("archive_chat", target="@a"))
+    assert gateway.calls == [("archive_chat", ("@a",))]
+
+
+@pytest.mark.asyncio
+async def test_message_id_must_be_integer() -> None:
+    gateway = RecordingGateway()
+    with pytest.raises(PermanentActionError, match="'message_id' must be an integer"):
+        await execute_action(gateway, _action("pin_message", target="@a", message_id="7"))
+    assert gateway.calls == []
+
+
+@pytest.mark.asyncio
+async def test_message_id_rejects_bool() -> None:
+    gateway = RecordingGateway()
+    with pytest.raises(PermanentActionError, match="'message_id' must be an integer"):
+        await execute_action(gateway, _action("delete_message", target="@a", message_id=True))
+    assert gateway.calls == []
+
+
+@pytest.mark.asyncio
+async def test_unsupported_action_is_permanent_error() -> None:
+    gateway = RecordingGateway()
+    action = ActionDefinition.model_construct(id="action", type="does_not_exist", with_={})
+    with pytest.raises(PermanentActionError, match="unsupported action type 'does_not_exist'"):
+        await execute_action(gateway, action)
+
+
+def test_registry_matches_action_type_schema() -> None:
+    """The registry and the ActionType literal must never drift apart."""
+    assert registry.action_types == set(get_args(ActionType))
+    # The import-time guard is also callable directly and must not raise.
+    registry.assert_consistent_with_schema()

@@ -6,7 +6,19 @@ import yaml
 from pydantic import BaseModel, Field, model_validator
 
 ActionType = Literal[
-    "create_group", "create_channel", "update_entity", "send_message", "resolve_target"
+    "create_group",
+    "create_channel",
+    "update_entity",
+    "send_message",
+    "resolve_target",
+    "pin_message",
+    "unpin_message",
+    "edit_message",
+    "delete_message",
+    "forward_message",
+    "reply_message",
+    "mark_read",
+    "archive_chat",
 ]
 
 
