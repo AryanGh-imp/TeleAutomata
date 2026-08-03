@@ -71,7 +71,7 @@ Use it only for entities and accounts you are authorized to manage. This project
 - Run one worker for a given account session; isolate workers for multiple accounts.
 - Export structured JSON logs to your central log service, without credentials or message content.
 
-See [architecture](docs/architecture.md), [API & interfaces](docs/api.md), [workflow engine](docs/workflow-engine.md), [actions](docs/actions.md), [CLI](docs/cli.md), [Telegram integration](docs/telegram-integration.md), [configuration](docs/configuration.md), [security](docs/security.md), [testing](docs/testing.md), [development](docs/development.md), [extending](docs/extending.md), and [troubleshooting](docs/troubleshooting.md).
+See [architecture](docs/architecture.md), [API & interfaces](docs/api.md), [workflow engine](docs/workflow-engine.md), [actions](docs/actions.md), [CLI](docs/cli.md), [Telegram integration](docs/telegram-integration.md), [configuration](docs/configuration.md), [security](docs/security.md), [testing](docs/testing.md), [development](docs/development.md), [extending](docs/extending.md), [FAQ](docs/faq.md), and [troubleshooting](docs/troubleshooting.md).
 
 ## Development
 
