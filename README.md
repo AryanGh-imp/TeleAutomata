@@ -25,6 +25,14 @@ telegram-automation auth primary
 
 To retry an interrupted or failed execution without rerunning recorded successful actions, use `telegram-automation resume <workflow.yml> <execution-id>`. Review non-idempotent action outcomes before resuming: Telegram may have accepted a request before a network interruption was observed.
 
+Inspect workflows and past runs without connecting to Telegram:
+
+```powershell
+telegram-automation list examples/workflows   # validate and summarize every workflow
+telegram-automation history                    # recent executions
+telegram-automation status <execution-id>      # per-action detail for one execution
+```
+
 Do not commit `.env` or the `sessions/` directory. Authentication is interactive; phone/2FA input is never placed in a workflow or database.
 
 ## Workflow format
@@ -63,16 +71,20 @@ Use it only for entities and accounts you are authorized to manage. This project
 - Run one worker for a given account session; isolate workers for multiple accounts.
 - Export structured JSON logs to your central log service, without credentials or message content.
 
-See [architecture](docs/architecture.md), [configuration](docs/configuration.md), and [development](docs/development.md).
+See [architecture](docs/architecture.md), [workflow engine](docs/workflow-engine.md), [Telegram integration](docs/telegram-integration.md), [configuration](docs/configuration.md), [security](docs/security.md), [testing](docs/testing.md), [development](docs/development.md), and [troubleshooting](docs/troubleshooting.md).
 
 ## Development
 
 ```powershell
 pip install -e ".[dev]"
 ruff check .
+ruff format --check .
 mypy src
 pytest
 ```
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) and the
+[changelog](CHANGELOG.md). This project is released under the [MIT License](LICENSE).
 
 ## Extension points
 
