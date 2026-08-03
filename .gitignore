@@ -18,5 +18,7 @@ build/
 
 # Local tooling and scratch directories
 .claude/
+.idea/
+.vscode/
 outputs/
 work/
