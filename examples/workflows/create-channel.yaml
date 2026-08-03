@@ -1,0 +1,21 @@
+version: 1
+name: launch-announcement-channel
+account: primary
+# Start with true. Set false only after review and authentication.
+dry_run: true
+actions:
+  - id: create_channel
+    type: create_channel
+    with:
+      title: "Project announcements"
+      about: "Official project updates"
+      broadcast: true
+    retry:
+      max_attempts: 3
+      initial_delay_seconds: 2
+      max_delay_seconds: 60
+  - id: verify_channel
+    type: resolve_target
+    depends_on: [create_channel]
+    with:
+      target: "@replace_with_public_username"

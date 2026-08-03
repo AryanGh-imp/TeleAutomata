@@ -1,0 +1,22 @@
+.env
+.venv/
+.pip-cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+data/
+sessions/
+*.session
+*.session-journal
+*.sqlite3
+logs/
+dist/
+build/
+*.egg-info/
+
+# Local tooling and scratch directories
+.claude/
+outputs/
+work/
