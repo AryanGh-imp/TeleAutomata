@@ -7,7 +7,11 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from telegram_automation.application.engine import WorkflowEngine
 from telegram_automation.domain.errors import TransientActionError
 from telegram_automation.domain.models import OperationStatus
-from telegram_automation.infrastructure.persistence import OperationRepository, build_engine, initialize_database
+from telegram_automation.infrastructure.persistence import (
+    OperationRepository,
+    build_engine,
+    initialize_database,
+)
 from telegram_automation.infrastructure.scheduling import AccountRateLimiter
 from telegram_automation.workflows.schema import RetryPolicy, WorkflowDefinition
 
@@ -29,7 +33,9 @@ class FakeGateway:
     async def create_channel(self, title: str, about: str, broadcast: bool) -> dict[str, Any]:
         raise AssertionError
 
-    async def update_entity(self, target: str, title: str | None, about: str | None) -> dict[str, Any]:
+    async def update_entity(
+        self, target: str, title: str | None, about: str | None
+    ) -> dict[str, Any]:
         raise AssertionError
 
     async def send_message(self, target: str, message: str) -> dict[str, Any]:
@@ -46,11 +52,33 @@ async def repository() -> AsyncGenerator[OperationRepository, None]:
 
 @pytest.mark.asyncio
 async def test_retries_temporary_failure(repository: OperationRepository) -> None:
-    workflow = WorkflowDefinition.model_validate({"name": "retry", "account": "a", "actions": [
-        {"id": "resolve", "type": "resolve_target", "with": {"target": "@telegram"}, "retry": {"max_attempts": 2, "initial_delay_seconds": 0.1, "max_delay_seconds": 0.1}},
-    ]})
+    workflow = WorkflowDefinition.model_validate(
+        {
+            "name": "retry",
+            "account": "a",
+            "actions": [
+                {
+                    "id": "resolve",
+                    "type": "resolve_target",
+                    "with": {"target": "@telegram"},
+                    "retry": {
+                        "max_attempts": 2,
+                        "initial_delay_seconds": 0.1,
+                        "max_delay_seconds": 0.1,
+                    },
+                },
+            ],
+        }
+    )
     gateway = FakeGateway(fail_once=True)
-    result = await WorkflowEngine(repository, gateway, AccountRateLimiter(0.1), max_concurrency=2, max_flood_wait_seconds=5, default_retry=RetryPolicy()).run(workflow)
+    result = await WorkflowEngine(
+        repository,
+        gateway,
+        AccountRateLimiter(0.1),
+        max_concurrency=2,
+        max_flood_wait_seconds=5,
+        default_retry=RetryPolicy(),
+    ).run(workflow)
     assert result.status == OperationStatus.SUCCEEDED
     assert result.succeeded == 1
     assert gateway.calls == 2
@@ -58,11 +86,25 @@ async def test_retries_temporary_failure(repository: OperationRepository) -> Non
 
 @pytest.mark.asyncio
 async def test_dry_run_never_calls_gateway(repository: OperationRepository) -> None:
-    workflow = WorkflowDefinition.model_validate({"name": "dry", "account": "a", "dry_run": True, "actions": [
-        {"id": "resolve", "type": "resolve_target", "with": {"target": "@telegram"}},
-    ]})
+    workflow = WorkflowDefinition.model_validate(
+        {
+            "name": "dry",
+            "account": "a",
+            "dry_run": True,
+            "actions": [
+                {"id": "resolve", "type": "resolve_target", "with": {"target": "@telegram"}},
+            ],
+        }
+    )
     gateway = FakeGateway()
-    result = await WorkflowEngine(repository, gateway, AccountRateLimiter(0.1), max_concurrency=2, max_flood_wait_seconds=5, default_retry=RetryPolicy()).run(workflow)
+    result = await WorkflowEngine(
+        repository,
+        gateway,
+        AccountRateLimiter(0.1),
+        max_concurrency=2,
+        max_flood_wait_seconds=5,
+        default_retry=RetryPolicy(),
+    ).run(workflow)
     assert result.status == OperationStatus.SUCCEEDED
     assert result.skipped == 1
     assert gateway.calls == 0

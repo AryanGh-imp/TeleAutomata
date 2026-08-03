@@ -31,4 +31,3 @@ class Settings(BaseSettings):
         if self.telegram_api_id is None or self.telegram_api_hash is None:
             raise ValueError("TELEGRAM_API_ID and TELEGRAM_API_HASH must be configured")
         return self.telegram_api_id, self.telegram_api_hash.get_secret_value()
-

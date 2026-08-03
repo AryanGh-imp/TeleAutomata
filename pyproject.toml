@@ -29,6 +29,7 @@ dev = [
   "pytest>=8.3,<9",
   "pytest-asyncio>=0.24,<1",
   "ruff>=0.6,<1",
+  "types-PyYAML>=6.0,<7",
 ]
 postgres = ["asyncpg>=0.29,<1"]
 
@@ -49,8 +50,18 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
 
+[tool.ruff.lint.per-file-ignores]
+# Tests favour compact, readable table-style workflow fixtures over strict wrapping.
+"tests/*" = ["E501"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
 packages = ["telegram_automation"]
 exclude = ["tests"]
+
+[[tool.mypy.overrides]]
+# Telethon ships without type information; isolate that at the adapter boundary
+# instead of weakening strictness for the whole project.
+module = ["telethon.*"]
+ignore_missing_imports = true

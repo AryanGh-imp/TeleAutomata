@@ -4,8 +4,9 @@ from typing import Any, Literal
 import yaml
 from pydantic import BaseModel, Field, model_validator
 
-
-ActionType = Literal["create_group", "create_channel", "update_entity", "send_message", "resolve_target"]
+ActionType = Literal[
+    "create_group", "create_channel", "update_entity", "send_message", "resolve_target"
+]
 
 
 class RetryPolicy(BaseModel):
@@ -45,7 +46,9 @@ class WorkflowDefinition(BaseModel):
         for action in self.actions:
             missing = set(action.depends_on) - known
             if missing:
-                raise ValueError(f"action '{action.id}' has unknown dependencies: {sorted(missing)}")
+                raise ValueError(
+                    f"action '{action.id}' has unknown dependencies: {sorted(missing)}"
+                )
             if action.id in action.depends_on:
                 raise ValueError(f"action '{action.id}' cannot depend on itself")
         self._assert_acyclic()

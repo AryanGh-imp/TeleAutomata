@@ -1,10 +1,14 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
 from telethon import TelegramClient, errors, functions
 from telethon.tl.types import Channel
 
-from telegram_automation.domain.errors import PermanentActionError, RateLimitError, TransientActionError
+from telegram_automation.domain.errors import (
+    PermanentActionError,
+    RateLimitError,
+    TransientActionError,
+)
 
 
 class TelethonGateway:
@@ -19,7 +23,9 @@ class TelethonGateway:
             result = await self._client(
                 functions.messages.CreateChatRequest(users=input_users, title=title)
             )
-            chat = next((chat for chat in result.chats if getattr(chat, "title", None) == title), None)
+            chat = next(
+                (chat for chat in result.chats if getattr(chat, "title", None) == title), None
+            )
             return {"title": title, "entity_id": getattr(chat, "id", None)}
         except Exception as exc:  # translated at the anti-corruption boundary
             self._raise_translated(exc)
@@ -39,13 +45,13 @@ class TelethonGateway:
         except Exception as exc:
             self._raise_translated(exc)
 
-    async def update_entity(self, target: str, title: str | None, about: str | None) -> dict[str, Any]:
+    async def update_entity(
+        self, target: str, title: str | None, about: str | None
+    ) -> dict[str, Any]:
         try:
             entity = await self._client.get_entity(target)
             if title is not None and isinstance(entity, Channel):
-                await self._client(
-                    functions.channels.EditTitleRequest(channel=entity, title=title)
-                )
+                await self._client(functions.channels.EditTitleRequest(channel=entity, title=title))
             elif title is not None:
                 await self._client(
                     functions.messages.EditChatTitleRequest(chat_id=entity.id, title=title)
@@ -59,7 +65,11 @@ class TelethonGateway:
                     await self._client(
                         functions.messages.EditChatAboutRequest(peer=entity, about=about)
                     )
-            return {"target": target, "updated_title": title is not None, "updated_about": about is not None}
+            return {
+                "target": target,
+                "updated_title": title is not None,
+                "updated_about": about is not None,
+            }
         except Exception as exc:
             self._raise_translated(exc)
 
@@ -78,23 +88,36 @@ class TelethonGateway:
             self._raise_translated(exc)
 
     @staticmethod
-    def _raise_translated(exc: Exception) -> None:
+    def _raise_translated(exc: Exception) -> NoReturn:
         if isinstance(exc, errors.FloodWaitError):
             raise RateLimitError(exc.seconds) from exc
-        if isinstance(exc, (errors.ServerError, errors.RpcCallFailError, TimeoutError, ConnectionError, OSError)):
+        if isinstance(
+            exc,
+            (errors.ServerError, errors.RpcCallFailError, TimeoutError, ConnectionError, OSError),
+        ):
             raise TransientActionError(str(exc)) from exc
         if isinstance(exc, errors.RPCError):
-            raise PermanentActionError(f"Telegram rejected the action: {type(exc).__name__}") from exc
-        raise TransientActionError(f"unexpected Telegram client error: {type(exc).__name__}") from exc
+            raise PermanentActionError(
+                f"Telegram rejected the action: {type(exc).__name__}"
+            ) from exc
+        raise TransientActionError(
+            f"unexpected Telegram client error: {type(exc).__name__}"
+        ) from exc
 
 
-async def connect_gateway(api_id: int, api_hash: str, session_dir: Path, account: str) -> tuple[TelegramClient, TelethonGateway]:
+async def connect_gateway(
+    api_id: int, api_hash: str, session_dir: Path, account: str
+) -> tuple[TelegramClient, TelethonGateway]:
     """Open a session. Authentication is intentionally interactive through the CLI only."""
     session_dir.mkdir(parents=True, exist_ok=True)
     session_path = session_dir / account
-    client = TelegramClient(str(session_path), api_id, api_hash, flood_sleep_threshold=0, auto_reconnect=True)
+    client = TelegramClient(
+        str(session_path), api_id, api_hash, flood_sleep_threshold=0, auto_reconnect=True
+    )
     await client.connect()
     if not await client.is_user_authorized():
         await client.disconnect()
-        raise PermanentActionError(f"account '{account}' is not authenticated; run the auth command first")
+        raise PermanentActionError(
+            f"account '{account}' is not authenticated; run the auth command first"
+        )
     return client, TelethonGateway(client)

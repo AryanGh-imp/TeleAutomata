@@ -5,7 +5,12 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, select
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from telegram_automation.domain.models import OperationStatus
@@ -45,25 +50,52 @@ class OperationRepository:
     def __init__(self, session_factory: async_sessionmaker[AsyncSession]) -> None:
         self._sessions = session_factory
 
-    async def create_execution(self, workflow_name: str, account: str, definition: dict[str, Any]) -> UUID:
+    async def create_execution(
+        self, workflow_name: str, account: str, definition: dict[str, Any]
+    ) -> UUID:
         execution_id = uuid4()
         now = datetime.now(UTC)
         async with self._sessions.begin() as session:
-            session.add(ExecutionRecord(id=str(execution_id), workflow_name=workflow_name, account=account,
-                status=OperationStatus.RUNNING, definition_json=json.dumps(definition), created_at=now))
+            session.add(
+                ExecutionRecord(
+                    id=str(execution_id),
+                    workflow_name=workflow_name,
+                    account=account,
+                    status=OperationStatus.RUNNING,
+                    definition_json=json.dumps(definition),
+                    created_at=now,
+                )
+            )
         return execution_id
 
     async def create_operation(self, execution_id: UUID, action_id: str, action_type: str) -> UUID:
         operation_id = uuid4()
         now = datetime.now(UTC)
         async with self._sessions.begin() as session:
-            session.add(OperationRecord(id=str(operation_id), execution_id=str(execution_id), action_id=action_id,
-                action_type=action_type, status=OperationStatus.PENDING, attempts=0, created_at=now, updated_at=now))
+            session.add(
+                OperationRecord(
+                    id=str(operation_id),
+                    execution_id=str(execution_id),
+                    action_id=action_id,
+                    action_type=action_type,
+                    status=OperationStatus.PENDING,
+                    attempts=0,
+                    created_at=now,
+                    updated_at=now,
+                )
+            )
         return operation_id
 
-    async def update_operation(self, operation_id: UUID, status: OperationStatus, *, attempts: int,
-                               output: dict[str, Any] | None = None, error_code: str | None = None,
-                               error_detail: str | None = None) -> None:
+    async def update_operation(
+        self,
+        operation_id: UUID,
+        status: OperationStatus,
+        *,
+        attempts: int,
+        output: dict[str, Any] | None = None,
+        error_code: str | None = None,
+        error_detail: str | None = None,
+    ) -> None:
         async with self._sessions.begin() as session:
             record = await session.get(OperationRecord, str(operation_id))
             if record is None:
@@ -102,7 +134,11 @@ class OperationRepository:
 
     async def operation_statuses(self, execution_id: UUID) -> list[OperationStatus]:
         async with self._sessions() as session:
-            rows = await session.scalars(select(OperationRecord.status).where(OperationRecord.execution_id == str(execution_id)))
+            rows = await session.scalars(
+                select(OperationRecord.status).where(
+                    OperationRecord.execution_id == str(execution_id)
+                )
+            )
             return [OperationStatus(status) for status in rows]
 
 

@@ -11,7 +11,8 @@ class TransientActionError(TelegramAutomationError):
 
 
 class RateLimitError(TransientActionError):
-    def __init__(self, retry_after_seconds: int, message: str = "Telegram requested a wait") -> None:
+    def __init__(
+        self, retry_after_seconds: int, message: str = "Telegram requested a wait"
+    ) -> None:
         super().__init__(message)
         self.retry_after_seconds = retry_after_seconds
-

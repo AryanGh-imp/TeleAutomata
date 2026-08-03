@@ -29,4 +29,3 @@ class ExecutionSummary:
     succeeded: int
     failed: int
     skipped: int
-
