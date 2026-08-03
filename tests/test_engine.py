@@ -5,7 +5,11 @@ import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from telegram_automation.application.engine import WorkflowEngine
-from telegram_automation.domain.errors import PermanentActionError, TransientActionError
+from telegram_automation.domain.errors import (
+    PermanentActionError,
+    RateLimitError,
+    TransientActionError,
+)
 from telegram_automation.domain.models import OperationStatus
 from telegram_automation.infrastructure.persistence import (
     OperationRepository,
@@ -285,3 +289,140 @@ async def test_continue_on_error_does_not_skip_grandchildren(
     assert result.status == OperationStatus.SUCCEEDED
     assert result.succeeded == 2
     assert result.failed == 1
+
+
+class FloodGateway:
+    """Gateway that raises a flood wait a fixed number of times, then succeeds."""
+
+    def __init__(self, *, flood_seconds: int, flood_times: int) -> None:
+        self.calls = 0
+        self._flood_seconds = flood_seconds
+        self._remaining_floods = flood_times
+
+    async def resolve_target(self, target: str) -> dict[str, Any]:
+        self.calls += 1
+        if self._remaining_floods > 0:
+            self._remaining_floods -= 1
+            raise RateLimitError(self._flood_seconds)
+        return {"target": target, "entity_id": 1}
+
+    async def create_group(self, title: str, users: list[str]) -> dict[str, Any]:
+        raise AssertionError
+
+    async def create_channel(self, title: str, about: str, broadcast: bool) -> dict[str, Any]:
+        raise AssertionError
+
+    async def update_entity(
+        self, target: str, title: str | None, about: str | None
+    ) -> dict[str, Any]:
+        raise AssertionError
+
+    async def send_message(self, target: str, message: str) -> dict[str, Any]:
+        raise AssertionError
+
+
+def _flood_workflow(max_attempts: int = 3) -> WorkflowDefinition:
+    return WorkflowDefinition.model_validate(
+        {
+            "name": "flood",
+            "account": "a",
+            "actions": [
+                {
+                    "id": "resolve",
+                    "type": "resolve_target",
+                    "with": {"target": "@telegram"},
+                    "retry": {"max_attempts": max_attempts},
+                },
+            ],
+        }
+    )
+
+
+@pytest.mark.asyncio
+async def test_flood_wait_within_budget_is_retried(repository: OperationRepository) -> None:
+    gateway = FloodGateway(flood_seconds=1, flood_times=1)
+    result = await _engine(repository, gateway).run(_flood_workflow())
+    assert result.status == OperationStatus.SUCCEEDED
+    assert result.succeeded == 1
+    assert gateway.calls == 2
+
+
+@pytest.mark.asyncio
+async def test_flood_wait_over_budget_fails_immediately(
+    repository: OperationRepository,
+) -> None:
+    # max_flood_wait_seconds on the engine below is 5; a 10s wait must not be slept off.
+    gateway = FloodGateway(flood_seconds=10, flood_times=1)
+    result = await _engine(repository, gateway).run(_flood_workflow())
+    assert result.status == OperationStatus.FAILED
+    assert result.failed == 1
+    assert gateway.calls == 1  # never retried past the budget
+
+
+@pytest.mark.asyncio
+async def test_flood_wait_exhausts_retries(repository: OperationRepository) -> None:
+    gateway = FloodGateway(flood_seconds=1, flood_times=5)
+    result = await _engine(repository, gateway).run(_flood_workflow(max_attempts=2))
+    assert result.status == OperationStatus.FAILED
+    assert result.failed == 1
+    assert gateway.calls == 2
+
+
+@pytest.mark.asyncio
+async def test_resume_preserves_succeeded_actions(repository: OperationRepository) -> None:
+    workflow = WorkflowDefinition.model_validate(
+        {
+            "name": "resumable",
+            "account": "a",
+            "actions": [
+                {"id": "first", "type": "resolve_target", "with": {"target": "@bad"}},
+            ],
+        }
+    )
+    # First run fails permanently.
+    failing = FakeGateway(permanent_fail_for={"@bad"})
+    first = await _engine(repository, failing).run(workflow)
+    assert first.status == OperationStatus.FAILED
+
+    # Resume with a healthy gateway retries only the unfinished action.
+    healthy = FakeGateway()
+    second = await _engine(repository, healthy).run(
+        workflow, resume_execution_id=first.execution_id
+    )
+    assert second.execution_id == first.execution_id
+    assert second.status == OperationStatus.SUCCEEDED
+    assert healthy.calls == 1
+
+
+@pytest.mark.asyncio
+async def test_resume_skips_already_succeeded_actions(
+    repository: OperationRepository,
+) -> None:
+    workflow = WorkflowDefinition.model_validate(
+        {
+            "name": "partial",
+            "account": "a",
+            "actions": [
+                {"id": "done", "type": "resolve_target", "with": {"target": "@good"}},
+                {
+                    "id": "next",
+                    "type": "resolve_target",
+                    "depends_on": ["done"],
+                    "with": {"target": "@good2"},
+                },
+            ],
+        }
+    )
+    gateway = FakeGateway()
+    first = await _engine(repository, gateway).run(workflow)
+    assert first.status == OperationStatus.SUCCEEDED
+    assert gateway.calls == 2
+
+    # A resume of a fully-succeeded workflow should re-run nothing.
+    resumed_gateway = FakeGateway()
+    resumed = await _engine(repository, resumed_gateway).run(
+        workflow, resume_execution_id=first.execution_id
+    )
+    assert resumed.status == OperationStatus.SUCCEEDED
+    assert resumed.succeeded == 2
+    assert resumed_gateway.calls == 0  # nothing re-executed
