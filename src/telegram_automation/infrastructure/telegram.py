@@ -1,3 +1,4 @@
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any, NoReturn
 
@@ -279,6 +280,79 @@ class TelethonGateway:
             return {"target": target, "left": True}
         except Exception as exc:
             self._raise_translated(exc)
+
+    async def add_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        try:
+            entity = await self._client.get_entity(target)
+        except Exception as exc:
+            self._raise_translated(exc)
+        is_channel = isinstance(entity, Channel)
+
+        async def _add(user_entity: Any) -> None:
+            if is_channel:
+                await self._client(functions.channels.InviteToChannelRequest(entity, [user_entity]))
+            else:
+                await self._client(
+                    functions.messages.AddChatUserRequest(
+                        chat_id=entity.id, user_id=user_entity, fwd_limit=0
+                    )
+                )
+
+        return await self._for_each_user(target, users, _add, "added")
+
+    async def remove_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        async def _remove(user_entity: Any) -> None:
+            # kick_participant removes without a lasting ban, so the user can rejoin.
+            await self._client.kick_participant(target, user_entity)
+
+        return await self._for_each_user(target, users, _remove, "removed")
+
+    async def ban_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        async def _ban(user_entity: Any) -> None:
+            # view_messages=False revokes every right: a full ban (supergroups only).
+            await self._client.edit_permissions(target, user_entity, view_messages=False)
+
+        return await self._for_each_user(target, users, _ban, "banned")
+
+    async def unban_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        async def _unban(user_entity: Any) -> None:
+            # All rights default to True, lifting a prior ban/restriction.
+            await self._client.edit_permissions(target, user_entity)
+
+        return await self._for_each_user(target, users, _unban, "unbanned")
+
+    async def _for_each_user(
+        self,
+        target: str,
+        users: list[str],
+        action: "Callable[[Any], Awaitable[None]]",
+        verb: str,
+    ) -> dict[str, Any]:
+        """Apply ``action`` to each user, isolating per-user permanent failures.
+
+        A single user that cannot be resolved or is rejected permanently is
+        recorded under ``failed`` and the batch continues. Rate-limit and
+        transient errors propagate so the engine's flood-wait and retry logic
+        govern the whole action.
+        """
+        succeeded: list[str] = []
+        failed: list[dict[str, str]] = []
+        for user in users:
+            try:
+                try:
+                    user_entity = await self._client.get_input_entity(user)
+                except (ValueError, TypeError) as exc:
+                    raise PermanentActionError(f"cannot resolve user '{user}'") from exc
+                await action(user_entity)
+                succeeded.append(user)
+            except Exception as exc:
+                try:
+                    self._raise_translated(exc)
+                except PermanentActionError as permanent:
+                    failed.append({"user": user, "error": str(permanent)})
+                    # transient/rate-limit errors are re-raised by _raise_translated
+                    # and intentionally abort the batch.
+        return {"target": target, verb: succeeded, "failed": failed}
 
     @staticmethod
     def _raise_translated(exc: Exception) -> NoReturn:

@@ -86,6 +86,18 @@ class NullGateway:
     async def leave_group(self, target: str) -> dict[str, Any]:
         return self._forbid("leave_group")
 
+    async def add_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        return self._forbid("add_members")
+
+    async def remove_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        return self._forbid("remove_members")
+
+    async def ban_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        return self._forbid("ban_members")
+
+    async def unban_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        return self._forbid("unban_members")
+
     @staticmethod
     def _forbid(action: str) -> dict[str, Any]:
         raise PermanentActionError(

@@ -28,6 +28,10 @@ ActionType = Literal[
     "leave_channel",
     "join_group",
     "leave_group",
+    "add_members",
+    "remove_members",
+    "ban_members",
+    "unban_members",
 ]
 
 

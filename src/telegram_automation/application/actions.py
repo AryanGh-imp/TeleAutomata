@@ -1,4 +1,5 @@
 from collections.abc import Awaitable, Callable
+from pathlib import Path
 from typing import Any, get_args
 
 from telegram_automation.domain.errors import PermanentActionError
@@ -80,6 +81,47 @@ def _optional_string(value: Any, field: str) -> str | None:
     if not isinstance(value, str):
         raise PermanentActionError(f"'{field}' must be a string")
     return value
+
+
+def _user_targets(arguments: dict[str, Any]) -> list[str]:
+    """Resolve the user list for member actions.
+
+    Accepts an inline ``users`` list (usernames or numeric ids as strings) and,
+    optionally, a ``users_csv`` path to a file with one user per line or
+    comma-separated values. The two sources are merged, de-duplicated (keeping
+    first-seen order), and must yield at least one target.
+    """
+    users: list[str] = []
+    if "users" in arguments:
+        users.extend(_string_list(arguments, "users"))
+    csv_path = arguments.get("users_csv")
+    if csv_path is not None:
+        if not isinstance(csv_path, str) or not csv_path.strip():
+            raise PermanentActionError("'users_csv' must be a path string")
+        users.extend(_read_user_csv(csv_path))
+    if not users:
+        raise PermanentActionError(
+            "member actions require 'users' (a non-empty list) or 'users_csv' (a file path)"
+        )
+    seen: set[str] = set()
+    unique: list[str] = []
+    for u in users:
+        if u not in seen:
+            seen.add(u)
+            unique.append(u)
+    return unique
+
+
+def _read_user_csv(path: str) -> list[str]:
+    try:
+        raw = Path(path).read_text(encoding="utf-8")
+    except OSError as exc:
+        raise PermanentActionError(f"cannot read users_csv '{path}': {exc}") from exc
+    values = [cell.strip() for line in raw.splitlines() for cell in line.split(",")]
+    entries = [value for value in values if value]
+    if not entries:
+        raise PermanentActionError(f"users_csv '{path}' contained no users")
+    return entries
 
 
 def _integer(arguments: dict[str, Any], field: str, *, positive: bool = False) -> int:
@@ -226,6 +268,26 @@ async def _join_group(gateway: TelegramGateway, arguments: dict[str, Any]) -> di
 @registry.register("leave_group")
 async def _leave_group(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
     return await gateway.leave_group(_string(arguments, "target"))
+
+
+@registry.register("add_members")
+async def _add_members(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.add_members(_string(arguments, "target"), _user_targets(arguments))
+
+
+@registry.register("remove_members")
+async def _remove_members(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.remove_members(_string(arguments, "target"), _user_targets(arguments))
+
+
+@registry.register("ban_members")
+async def _ban_members(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.ban_members(_string(arguments, "target"), _user_targets(arguments))
+
+
+@registry.register("unban_members")
+async def _unban_members(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
+    return await gateway.unban_members(_string(arguments, "target"), _user_targets(arguments))
 
 
 async def execute_action(gateway: TelegramGateway, action: ActionDefinition) -> dict[str, Any]:

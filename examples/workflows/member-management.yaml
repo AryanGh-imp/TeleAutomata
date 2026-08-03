@@ -1,0 +1,21 @@
+version: 1
+name: member-management
+account: primary
+dry_run: true
+actions:
+  - id: add_team
+    type: add_members
+    with:
+      target: "@my_group"
+      users: ["@alice", "@bob", "123456789"]
+  - id: ban_spammers
+    type: ban_members
+    with:
+      target: "@my_group"
+      users_csv: "examples/data/spammers.csv"
+  - id: remove_inactive
+    type: remove_members
+    depends_on: [add_team]
+    with:
+      target: "@my_group"
+      users: ["@former_member"]

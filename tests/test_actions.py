@@ -107,6 +107,22 @@ class RecordingGateway:
         self.calls.append(("leave_group", (target,)))
         return {"ok": "leave_group"}
 
+    async def add_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        self.calls.append(("add_members", (target, users)))
+        return {"added": users, "failed": []}
+
+    async def remove_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        self.calls.append(("remove_members", (target, users)))
+        return {"removed": users, "failed": []}
+
+    async def ban_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        self.calls.append(("ban_members", (target, users)))
+        return {"banned": users, "failed": []}
+
+    async def unban_members(self, target: str, users: list[str]) -> dict[str, Any]:
+        self.calls.append(("unban_members", (target, users)))
+        return {"unbanned": users, "failed": []}
+
 
 def _action(action_type: str, **arguments: Any) -> ActionDefinition:
     return ActionDefinition.model_validate({"id": "action", "type": action_type, "with": arguments})
@@ -316,6 +332,72 @@ async def test_unsupported_action_is_permanent_error() -> None:
     action = ActionDefinition.model_construct(id="action", type="does_not_exist", with_={})
     with pytest.raises(PermanentActionError, match="unsupported action type 'does_not_exist'"):
         await execute_action(gateway, action)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("action_type", "key"),
+    [
+        ("add_members", "added"),
+        ("remove_members", "removed"),
+        ("ban_members", "banned"),
+        ("unban_members", "unbanned"),
+    ],
+)
+async def test_member_actions_forward_target_and_users(action_type: str, key: str) -> None:
+    gateway = RecordingGateway()
+    result = await execute_action(gateway, _action(action_type, target="@grp", users=["@a", "@b"]))
+    assert gateway.calls == [(action_type, ("@grp", ["@a", "@b"]))]
+    assert result[key] == ["@a", "@b"]
+
+
+@pytest.mark.asyncio
+async def test_member_actions_deduplicate_users_preserving_order() -> None:
+    gateway = RecordingGateway()
+    await execute_action(
+        gateway, _action("add_members", target="@grp", users=["@a", "@b", "@a", "@c"])
+    )
+    assert gateway.calls == [("add_members", ("@grp", ["@a", "@b", "@c"]))]
+
+
+@pytest.mark.asyncio
+async def test_member_actions_require_some_user_source() -> None:
+    gateway = RecordingGateway()
+    with pytest.raises(PermanentActionError, match="require 'users'.*or 'users_csv'"):
+        await execute_action(gateway, _action("add_members", target="@grp"))
+    assert gateway.calls == []
+
+
+@pytest.mark.asyncio
+async def test_member_actions_read_users_from_csv(tmp_path: Any) -> None:
+    csv_file = tmp_path / "users.csv"
+    csv_file.write_text("@a, @b\n123456\n\n@a\n", encoding="utf-8")
+    gateway = RecordingGateway()
+    await execute_action(gateway, _action("ban_members", target="@grp", users_csv=str(csv_file)))
+    # CSV cells split on commas and newlines, blanks dropped, duplicates removed.
+    assert gateway.calls == [("ban_members", ("@grp", ["@a", "@b", "123456"]))]
+
+
+@pytest.mark.asyncio
+async def test_member_actions_merge_inline_and_csv_users(tmp_path: Any) -> None:
+    csv_file = tmp_path / "users.csv"
+    csv_file.write_text("@c\n", encoding="utf-8")
+    gateway = RecordingGateway()
+    await execute_action(
+        gateway,
+        _action("add_members", target="@grp", users=["@a"], users_csv=str(csv_file)),
+    )
+    assert gateway.calls == [("add_members", ("@grp", ["@a", "@c"]))]
+
+
+@pytest.mark.asyncio
+async def test_member_actions_reject_missing_csv() -> None:
+    gateway = RecordingGateway()
+    with pytest.raises(PermanentActionError, match="cannot read users_csv"):
+        await execute_action(
+            gateway, _action("add_members", target="@grp", users_csv="does_not_exist.csv")
+        )
+    assert gateway.calls == []
 
 
 def test_registry_matches_action_type_schema() -> None:

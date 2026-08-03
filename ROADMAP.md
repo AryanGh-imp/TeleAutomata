@@ -29,6 +29,8 @@ Implemented so far:
 - [x] forward_message, reply_message, mark_read, archive_chat
 - [x] Dialogs: mark_unread, mute_dialog, unmute_dialog, pin_dialog, unpin_dialog
 - [x] Membership: join_channel, leave_channel, join_group, leave_group
+- [x] Members: add_members, remove_members, ban_members, unban_members
+      (multi-target: inline list, users_csv file, or both; per-user failure isolation)
 
 Planned (grouped as in the spec). Some entries are marked **N/A** because the
 account-level MTProto API does not support them and the framework will not fake
