@@ -12,7 +12,7 @@ actions:
     type: ban_members
     with:
       target: "@my_group"
-      users_csv: "examples/data/spammers.csv"
+      users_csv: "examples/samples/spammers.csv"
   - id: remove_inactive
     type: remove_members
     depends_on: [add_team]
