@@ -75,9 +75,34 @@ class WorkflowEngine:
         succeeded = sum(
             result.status == OperationStatus.SUCCEEDED for result in action_results.values()
         )
-        status = OperationStatus.FAILED if failed else OperationStatus.SUCCEEDED
+        # The execution as a whole only fails on failures that were not
+        # explicitly tolerated with continue_on_error; the per-action counts
+        # above still report every real failure faithfully.
+        blocking_failure = any(
+            result.status == OperationStatus.FAILED
+            and not workflow.actions_by_id[action_id].continue_on_error
+            for action_id, result in action_results.items()
+        )
+        status = OperationStatus.FAILED if blocking_failure else OperationStatus.SUCCEEDED
         await self._repository.finish_execution(execution_id, status)
         return ExecutionSummary(execution_id, status, succeeded, failed, skipped)
+
+    @staticmethod
+    def _dependency_blocks(
+        workflow: WorkflowDefinition, dependency_status: OperationStatus, dependency_id: str
+    ) -> bool:
+        """Decide whether a dependency's outcome should skip its descendants.
+
+        A skipped dependency never produced a usable result, so it always
+        propagates. A failed dependency blocks descendants unless it was
+        explicitly marked ``continue_on_error``, letting an optional step fail
+        without abandoning the rest of the workflow.
+        """
+        if dependency_status == OperationStatus.SKIPPED:
+            return True
+        if dependency_status == OperationStatus.FAILED:
+            return not workflow.actions_by_id[dependency_id].continue_on_error
+        return False
 
     async def _run_action(
         self,
@@ -88,20 +113,22 @@ class WorkflowEngine:
         semaphore: asyncio.Semaphore,
     ) -> ActionResult:
         operation_id = await self._repository.create_operation(execution_id, action.id, action.type)
-        dependency_failed = any(
-            previous[dep].status in {OperationStatus.FAILED, OperationStatus.SKIPPED}
-            for dep in action.depends_on
-        )
-        if dependency_failed:
-            result = ActionResult(OperationStatus.SKIPPED, {"reason": "dependency_failed"})
+        if workflow.dry_run:
+            # Nothing executes in a dry run, so dependencies cannot meaningfully
+            # fail; report every action uniformly as planned-but-not-run.
+            result = ActionResult(
+                OperationStatus.SKIPPED, {"reason": "dry_run", "action_type": action.type}
+            )
             await self._repository.update_operation(
                 operation_id, result.status, attempts=0, output=result.output
             )
             return result
-        if workflow.dry_run:
-            result = ActionResult(
-                OperationStatus.SKIPPED, {"reason": "dry_run", "action_type": action.type}
-            )
+        dependency_failed = any(
+            self._dependency_blocks(workflow, previous[dep].status, dep)
+            for dep in action.depends_on
+        )
+        if dependency_failed:
+            result = ActionResult(OperationStatus.SKIPPED, {"reason": "dependency_failed"})
             await self._repository.update_operation(
                 operation_id, result.status, attempts=0, output=result.output
             )

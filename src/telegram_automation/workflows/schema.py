@@ -1,3 +1,4 @@
+from functools import cached_property
 from pathlib import Path
 from typing import Any, Literal
 
@@ -53,6 +54,11 @@ class WorkflowDefinition(BaseModel):
                 raise ValueError(f"action '{action.id}' cannot depend on itself")
         self._assert_acyclic()
         return self
+
+    @cached_property
+    def actions_by_id(self) -> dict[str, ActionDefinition]:
+        """Index actions by id for O(1) lookup during execution and reporting."""
+        return {action.id: action for action in self.actions}
 
     def _assert_acyclic(self) -> None:
         dependencies = {a.id: set(a.depends_on) for a in self.actions}

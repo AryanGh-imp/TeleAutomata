@@ -24,6 +24,13 @@ class ActionResult:
 
 @dataclass(frozen=True, slots=True)
 class ExecutionSummary:
+    """Outcome of a workflow run.
+
+    ``status`` is ``FAILED`` only when an action failed without
+    ``continue_on_error``; ``failed`` counts every failed action, including
+    tolerated ones, so reporting stays faithful to what actually happened.
+    """
+
     execution_id: UUID
     status: OperationStatus
     succeeded: int
