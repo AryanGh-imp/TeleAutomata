@@ -13,6 +13,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   of Telegram rights to booleans (`false` removes a right); `view_messages` is
   rejected since a full ban is owned by `ban_members`. All three share the
   multi-target input and per-user failure isolation of the other member actions.
+- `unpin_message` now accepts an optional `message_id` to unpin a single
+  message; omitting it still unpins every pinned message.
 
 - `list`, `history`, and `status` CLI commands for read-only introspection of
   workflow files and recorded executions.
@@ -35,6 +37,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Dry runs no longer require Telegram credentials or a live session; a plan can
   be inspected entirely offline.
+- `run` and `resume` now exit non-zero only when the run failed as a whole (an
+  untolerated action failed). A failure tolerated by `continue_on_error` is
+  reported in the summary counts but no longer forces a non-zero exit.
 - Adopted `ruff format` across the codebase and resolved all lint and strict
   `mypy` findings.
 

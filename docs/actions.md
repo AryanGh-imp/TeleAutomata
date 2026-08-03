@@ -60,12 +60,14 @@ to create a megagroup. `update_entity` requires at least one of `title` or
 | `delete_message` | `target` (str), `message_id` (int) | `target`, `message_id`, `deleted` |
 | `forward_message` | `from_target` (str), `to_target` (str), `message_id` (int) | `from_target`, `to_target`, `message_id`, `forwarded_message_id` |
 | `pin_message` | `target` (str), `message_id` (int) | `target`, `message_id`, `pinned` |
-| `unpin_message` | `target` (str) | `target`, `message_id`, `unpinned_all` |
+| `unpin_message` | `target` (str), `message_id` (int, optional) | `target`, `message_id`, `unpinned_all` |
 | `mark_read` | `target` (str) | `target`, `read` |
 | `archive_chat` | `target` (str) | `target`, `archived` |
 
 Integer arguments reject booleans, so `message_id: true` is an error rather than
-being read as `1`. `unpin_message` unpins **all** pinned messages in the target.
+being read as `1`. `unpin_message` unpins a single message when given a
+`message_id`, or **all** pinned messages in the target when it is omitted
+(`unpinned_all` reports which happened).
 
 ```yaml
 - id: announce

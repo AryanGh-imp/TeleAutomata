@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     session_dir: Path = Path("./sessions")
     log_level: str = "INFO"
     max_concurrency: int = Field(default=2, ge=1, le=20)
-    account_concurrency: int = Field(default=1, ge=1, le=1)
     min_request_interval_seconds: float = Field(default=1.0, ge=0.1, le=300.0)
     max_retries: int = Field(default=3, ge=0, le=10)
     max_flood_wait_seconds: int = Field(default=3600, ge=1, le=86_400)

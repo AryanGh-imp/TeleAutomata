@@ -229,10 +229,17 @@ async def test_pin_message_forwards_target_and_id() -> None:
 
 
 @pytest.mark.asyncio
-async def test_unpin_message_forwards_target_only() -> None:
+async def test_unpin_message_without_id_unpins_all() -> None:
     gateway = RecordingGateway()
     await execute_action(gateway, _action("unpin_message", target="@a"))
     assert gateway.calls == [("unpin_message", ("@a", None))]
+
+
+@pytest.mark.asyncio
+async def test_unpin_message_forwards_optional_message_id() -> None:
+    gateway = RecordingGateway()
+    await execute_action(gateway, _action("unpin_message", target="@a", message_id=7))
+    assert gateway.calls == [("unpin_message", ("@a", 7))]
 
 
 @pytest.mark.asyncio

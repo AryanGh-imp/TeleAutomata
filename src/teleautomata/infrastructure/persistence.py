@@ -136,15 +136,6 @@ class OperationRepository:
             latest.setdefault(record.action_id, OperationStatus(record.status))
         return latest
 
-    async def operation_statuses(self, execution_id: UUID) -> list[OperationStatus]:
-        async with self._sessions() as session:
-            rows = await session.scalars(
-                select(OperationRecord.status).where(
-                    OperationRecord.execution_id == str(execution_id)
-                )
-            )
-            return [OperationStatus(status) for status in rows]
-
     async def list_executions(self, limit: int = 20) -> list[ExecutionRecordView]:
         """Return the most recent executions, newest first."""
         async with self._sessions() as session:

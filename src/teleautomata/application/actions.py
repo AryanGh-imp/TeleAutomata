@@ -133,6 +133,12 @@ def _integer(arguments: dict[str, Any], field: str, *, positive: bool = False) -
     return value
 
 
+def _optional_integer(arguments: dict[str, Any], field: str) -> int | None:
+    if arguments.get(field) is None:
+        return None
+    return _integer(arguments, field)
+
+
 @registry.register("create_group")
 async def _create_group(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
     return await gateway.create_group(_string(arguments, "title"), _string_list(arguments, "users"))
@@ -178,7 +184,11 @@ async def _pin_message(gateway: TelegramGateway, arguments: dict[str, Any]) -> d
 
 @registry.register("unpin_message")
 async def _unpin_message(gateway: TelegramGateway, arguments: dict[str, Any]) -> dict[str, Any]:
-    return await gateway.unpin_message(_string(arguments, "target"))
+    # message_id is optional: omit it to unpin every message, or pass one to
+    # unpin a single message.
+    return await gateway.unpin_message(
+        _string(arguments, "target"), _optional_integer(arguments, "message_id")
+    )
 
 
 @registry.register("edit_message")

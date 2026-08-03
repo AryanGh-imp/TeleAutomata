@@ -63,8 +63,10 @@ teleautomata run <workflow.yaml>
 Executes a workflow. If the file sets `dry_run: true`, the run uses a guard
 gateway that requires no credentials and touches nothing — the safe way to
 inspect intent. A real run connects the authenticated session named by the
-workflow's `account:` field. Exits non-zero if any action failed. The printed
-summary includes the execution id, which `resume` and `status` consume:
+workflow's `account:` field. Exits non-zero only if the run as a whole failed —
+an action that failed under `continue_on_error` is reported in the counts but
+does not fail the run. The printed summary includes the execution id, which
+`resume` and `status` consume:
 
 ```text
 Execution <uuid>: succeeded; succeeded=3, failed=0, skipped=0
@@ -114,7 +116,9 @@ execution matches the id.
 ## Exit codes
 
 - `0` — success.
-- `1` — a workflow action failed (`run`, `resume`), or no matching execution was
-  found (`status`).
+- `1` — the run failed as a whole (`run`, `resume`): at least one action failed
+  without `continue_on_error`. Failures tolerated by `continue_on_error` are
+  reported in the summary but do not set this code. Also returned when no
+  matching execution was found (`status`).
 - `2` — a usage or argument error (Typer), such as a missing file or a malformed
   account name.

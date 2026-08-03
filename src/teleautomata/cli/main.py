@@ -10,7 +10,7 @@ from telethon import TelegramClient
 
 from teleautomata.application.engine import WorkflowEngine
 from teleautomata.config.settings import Settings
-from teleautomata.domain.models import ExecutionSummary
+from teleautomata.domain.models import ExecutionSummary, OperationStatus
 from teleautomata.domain.ports import TelegramGateway
 from teleautomata.infrastructure.null_gateway import NullGateway
 from teleautomata.infrastructure.persistence import (
@@ -148,7 +148,7 @@ def run(
     definition = load_workflow(workflow)
     summary = asyncio.run(_execute(settings, definition, resume_execution_id=None))
     _echo_summary(summary)
-    if summary.failed:
+    if summary.status == OperationStatus.FAILED:
         raise typer.Exit(code=1)
 
 
@@ -163,7 +163,7 @@ def resume(
     definition = load_workflow(workflow)
     summary = asyncio.run(_execute(settings, definition, resume_execution_id=execution_id))
     _echo_summary(summary)
-    if summary.failed:
+    if summary.status == OperationStatus.FAILED:
         raise typer.Exit(code=1)
 
 
