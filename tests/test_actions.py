@@ -43,8 +43,8 @@ class RecordingGateway:
         self.calls.append(("unpin_message", (target, message_id)))
         return {"ok": "unpin_message"}
 
-    async def edit_message(self, target: str, message_id: int, text: str) -> dict[str, Any]:
-        self.calls.append(("edit_message", (target, message_id, text)))
+    async def edit_message(self, target: str, message_id: int, message: str) -> dict[str, Any]:
+        self.calls.append(("edit_message", (target, message_id, message)))
         return {"ok": "edit_message"}
 
     async def delete_message(self, target: str, message_id: int) -> dict[str, Any]:
@@ -245,7 +245,7 @@ async def test_unpin_message_forwards_optional_message_id() -> None:
 @pytest.mark.asyncio
 async def test_edit_message_forwards_all_arguments() -> None:
     gateway = RecordingGateway()
-    await execute_action(gateway, _action("edit_message", target="@a", message_id=7, text="new"))
+    await execute_action(gateway, _action("edit_message", target="@a", message_id=7, message="new"))
     assert gateway.calls == [("edit_message", ("@a", 7, "new"))]
 
 

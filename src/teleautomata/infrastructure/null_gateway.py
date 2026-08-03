@@ -37,7 +37,7 @@ class NullGateway:
     async def unpin_message(self, target: str, message_id: int | None = None) -> dict[str, Any]:
         return self._forbid("unpin_message")
 
-    async def edit_message(self, target: str, message_id: int, text: str) -> dict[str, Any]:
+    async def edit_message(self, target: str, message_id: int, message: str) -> dict[str, Any]:
         return self._forbid("edit_message")
 
     async def delete_message(self, target: str, message_id: int) -> dict[str, Any]:

@@ -56,7 +56,7 @@ to create a megagroup. `update_entity` requires at least one of `title` or
 | --- | --- | --- |
 | `send_message` | `target` (str), `message` (str) | `target`, `message_id` |
 | `reply_message` | `target` (str), `reply_to_message_id` (int), `message` (str) | `target`, `reply_to_message_id`, `message_id` |
-| `edit_message` | `target` (str), `message_id` (int), `text` (str) | `target`, `message_id`, `edited` |
+| `edit_message` | `target` (str), `message_id` (int), `message` (str) | `target`, `message_id`, `edited` |
 | `delete_message` | `target` (str), `message_id` (int) | `target`, `message_id`, `deleted` |
 | `forward_message` | `from_target` (str), `to_target` (str), `message_id` (int) | `from_target`, `to_target`, `message_id`, `forwarded_message_id` |
 | `pin_message` | `target` (str), `message_id` (int) | `target`, `message_id`, `pinned` |

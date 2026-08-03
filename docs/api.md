@@ -36,7 +36,7 @@ a fake gateway.
 - `ExecutionRecordView` / `OperationRecordView` — read models for reporting.
 
 **`domain/errors.py`** — the error taxonomy the engine dispatches on:
-`TelegramAutomationError` (base), `PermanentActionError`, `TransientActionError`,
+`TeleAutomataError` (base), `PermanentActionError`, `TransientActionError`,
 and `RateLimitError(retry_after_seconds)`.
 
 **`domain/ports.py`** — `TelegramGateway`, a `Protocol` with one method per

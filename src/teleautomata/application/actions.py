@@ -196,7 +196,7 @@ async def _edit_message(gateway: TelegramGateway, arguments: dict[str, Any]) -> 
     return await gateway.edit_message(
         _string(arguments, "target"),
         _integer(arguments, "message_id"),
-        _string(arguments, "text"),
+        _string(arguments, "message"),
     )
 
 

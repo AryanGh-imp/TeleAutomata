@@ -35,6 +35,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Breaking:** renamed the base exception `TelegramAutomationError` to
+  `TeleAutomataError`, matching the package name. Code that catches the base
+  class must update the import; the `PermanentActionError` /
+  `TransientActionError` / `RateLimitError` subclasses are unchanged.
+- **Breaking:** the `edit_message` action's body argument is now `message`
+  (was `text`), consistent with `send_message` and `reply_message`.
 - Dry runs no longer require Telegram credentials or a live session; a plan can
   be inspected entirely offline.
 - `run` and `resume` now exit non-zero only when the run failed as a whole (an

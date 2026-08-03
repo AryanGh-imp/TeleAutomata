@@ -14,7 +14,7 @@ from telethon.tl.types import (
 from teleautomata.domain.errors import (
     PermanentActionError,
     RateLimitError,
-    TelegramAutomationError,
+    TeleAutomataError,
     TransientActionError,
 )
 
@@ -129,9 +129,9 @@ class TelethonGateway:
         except Exception as exc:
             self._raise_translated(exc)
 
-    async def edit_message(self, target: str, message_id: int, text: str) -> dict[str, Any]:
+    async def edit_message(self, target: str, message_id: int, message: str) -> dict[str, Any]:
         try:
-            await self._client.edit_message(target, message_id, text)
+            await self._client.edit_message(target, message_id, message)
             return {"target": target, "message_id": message_id, "edited": True}
         except Exception as exc:
             self._raise_translated(exc)
@@ -384,7 +384,7 @@ class TelethonGateway:
         # A domain error raised inside a handler already carries the right
         # semantics; re-translating it would misclassify it (e.g. downgrade a
         # PermanentActionError to transient). Let it propagate unchanged.
-        if isinstance(exc, TelegramAutomationError):
+        if isinstance(exc, TeleAutomataError):
             raise exc
         if isinstance(exc, errors.FloodWaitError):
             raise RateLimitError(exc.seconds) from exc

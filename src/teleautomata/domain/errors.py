@@ -1,12 +1,12 @@
-class TelegramAutomationError(Exception):
+class TeleAutomataError(Exception):
     """Base framework exception."""
 
 
-class PermanentActionError(TelegramAutomationError):
+class PermanentActionError(TeleAutomataError):
     """The requested action cannot succeed by retrying."""
 
 
-class TransientActionError(TelegramAutomationError):
+class TransientActionError(TeleAutomataError):
     """Temporary service or network failure."""
 
 
