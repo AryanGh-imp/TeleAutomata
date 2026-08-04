@@ -67,5 +67,6 @@ Please respect these boundaries:
 ## Security
 
 Never automate accounts or entities you are not authorized to manage. Report
-security concerns privately rather than in a public issue. See
-[docs/security.md](docs/security.md).
+security concerns privately rather than in a public issue — see
+[SECURITY.md](SECURITY.md) for how. The operational security model is documented
+in [docs/security.md](docs/security.md).

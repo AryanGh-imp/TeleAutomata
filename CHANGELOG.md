@@ -6,6 +6,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-04
+
+First stable release. The public API is now frozen under Semantic Versioning;
+see [PUBLIC_API.md](PUBLIC_API.md).
+
 ### Added
 
 - A top-level public API: `WorkflowEngine`, `load_workflow`, the workflow/action
@@ -35,6 +40,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Project documentation: `LICENSE` (MIT), `CONTRIBUTING.md`, this changelog, and
   `docs/` topics for the workflow engine, Telegram integration, security,
   testing, and troubleshooting.
+- `SECURITY.md` and `CODE_OF_CONDUCT.md` governance files, and a `py.typed`
+  marker so the package ships its type information (PEP 561).
+- Packaging metadata for PyPI: trove classifiers and keywords.
 - Substantially expanded test suite covering action dispatch and validation,
   persistence lifecycle and resume queries, scheduling/backoff, schema
   validation, flood-wait handling, resume idempotency, and the CLI.

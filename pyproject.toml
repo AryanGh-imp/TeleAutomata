@@ -4,12 +4,25 @@ build-backend = "hatchling.build"
 
 [project]
 name = "teleautomata"
-version = "0.1.0"
+version = "1.0.0"
 description = "Safety-first, workflow-driven Telegram account automation"
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [{name = "TeleAutomata contributors"}]
+keywords = ["telegram", "automation", "workflow", "telethon", "async"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Communications :: Chat",
+  "Topic :: Software Development :: Libraries :: Application Frameworks",
+  "Typing :: Typed",
+]
 dependencies = [
   "alembic>=1.13,<2",
   "aiosqlite>=0.20,<1",

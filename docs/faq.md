@@ -54,7 +54,7 @@ No. Every execution and action is persisted as it runs. Re-run with
 did not already succeed are attempted again; completed work is preserved. Find
 the execution id with `teleautomata history`.
 
-## Why is the action library "only" ~30 actions?
+## Why is the action library "only" 29 actions?
 
 By design. The goal of v1.0 is a clean, well-documented framework, not the
 largest possible action count. The shipped actions are a representative set that

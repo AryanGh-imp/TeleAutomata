@@ -55,11 +55,16 @@ actions:
     retry: {max_attempts: 3, initial_delay_seconds: 2, max_delay_seconds: 60}
 ```
 
-Initial action types are `resolve_target`, `create_group`, `create_channel`, `update_entity`, and `send_message`. Actions run only after dependencies complete successfully. A failed dependency skips its descendants, and each action has a durable history record.
+TeleAutomata ships 29 actions across five categories — entity management,
+messaging, dialogs, membership, and member management — documented in full in
+[docs/actions.md](docs/actions.md). The library is a representative, frozen set
+that demonstrates the pattern for adding more, not an exhaustive one. Actions run
+only after their dependencies complete successfully. A failed dependency skips
+its descendants, and each action has a durable history record.
 
 ## Operational safety
 
-The framework defaults to one active account operation and a one-second minimum interval. Telegram does not publish a universal safe throughput, so configure conservatively and observe real API responses. `FLOOD_WAIT` pauses for Telegram’s requested time; waits above `MAX_FLOOD_WAIT_SECONDS` fail safely for review. Invalid requests, missing permissions, privacy restrictions, and unauthorized accounts are terminal rather than endlessly retried.
+The framework defaults to running at most two actions concurrently (`MAX_CONCURRENCY`) and a one-second minimum interval between requests to an account. Telegram does not publish a universal safe throughput, so configure conservatively and observe real API responses. `FLOOD_WAIT` pauses for Telegram’s requested time; waits above `MAX_FLOOD_WAIT_SECONDS` fail safely for review. Invalid requests, missing permissions, privacy restrictions, and unauthorized accounts are terminal rather than endlessly retried.
 
 Use it only for entities and accounts you are authorized to manage. This project does not attempt to bypass Telegram restrictions or automate spam-like behavior.
 
