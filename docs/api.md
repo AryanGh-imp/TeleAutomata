@@ -15,7 +15,7 @@ teleautomata/
 ├── workflows/       # workflow schema and loader
 ├── config/          # settings
 ├── observability/   # logging
-└── cli/             # Typer entry point
+└── cli/             # Typer entry point and Rich presentation layer
 ```
 
 Dependencies point inward: `domain` imports nothing from the framework,

@@ -6,6 +6,26 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- CLI: `--version`/`-V` and `--debug` global options, and `--yes`/`-y` on `run`
+  and `resume` to skip the live-run confirmation.
+
+### Changed
+
+- CLI: redesigned the terminal experience with Rich. Validation, execution
+  summaries, workflow listings, history, and per-action status now render as
+  structured panels and tables; expected errors are shown as concise, actionable
+  panels on stderr instead of tracebacks (use `--debug` for the full traceback).
+  Colour and borders are dropped automatically when output is not a terminal
+  (pipes, CI), and execution IDs are never truncated. Command names, arguments,
+  options, and exit codes are unchanged; presentation moved to a dedicated,
+  testable `teleautomata.cli.presentation` layer.
+- CLI: a live (non-dry) `run`/`resume` now asks for confirmation in an
+  interactive terminal before performing real Telegram actions. The prompt is
+  skipped with `--yes` and in non-interactive contexts, so scripts and CI are
+  unaffected.
+
 ## [1.0.0] - 2026-08-04
 
 First stable release. The public API is now frozen under Semantic Versioning;

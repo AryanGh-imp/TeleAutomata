@@ -29,6 +29,7 @@ dependencies = [
   "pydantic>=2.8,<3",
   "pydantic-settings>=2.4,<3",
   "PyYAML>=6.0,<7",
+  "rich>=13.8,<16",
   "SQLAlchemy>=2.0,<3",
   "structlog>=24.2,<26",
   "telethon>=1.36,<2",

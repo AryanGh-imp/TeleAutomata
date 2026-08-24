@@ -40,18 +40,24 @@ their positional arguments and options, and their **exit codes** are stable.
 | `init` | `teleautomata init` |
 | `auth` | `teleautomata auth <account>` |
 | `validate` | `teleautomata validate <workflow.yaml>` |
-| `run` | `teleautomata run <workflow.yaml>` |
-| `resume` | `teleautomata resume <workflow.yaml> <execution_id>` |
+| `run` | `teleautomata run <workflow.yaml> [--yes]` |
+| `resume` | `teleautomata resume <workflow.yaml> <execution_id> [--yes]` |
 | `list` | `teleautomata list [directory]` |
 | `history` | `teleautomata history [--limit N]` |
 | `status` | `teleautomata status <execution_id>` |
 
+Global options: `--version`/`-V`, `--debug`, and `--help`. On `run`/`resume`,
+`--yes`/`-y` skips the interactive confirmation shown before a live run; the
+prompt is skipped automatically in non-interactive contexts, so scripts are
+unaffected.
+
 Exit codes (stable contract):
 
 - `0` — success.
-- `1` — the run failed as a whole (`run`, `resume`), or no matching execution
-  was found (`status`). A failure tolerated by `continue_on_error` does **not**
-  set this code.
+- `1` — an expected failure (a run that failed as a whole for `run`/`resume`; an
+  invalid workflow for `validate`; missing configuration such as absent
+  credentials; a gateway error; or no matching execution for `status`). A
+  failure tolerated by `continue_on_error` does **not** set this code.
 - `2` — usage or argument error (missing file, malformed account name).
 
 The exact wording of human-readable output (summaries, table columns) is **not**
