@@ -81,14 +81,9 @@ class TelethonGateway:
                     functions.messages.EditChatTitleRequest(chat_id=entity.id, title=title)
                 )
             if about is not None:
-                if isinstance(entity, Channel):
-                    await self._client(
-                        functions.channels.EditAboutRequest(channel=entity, about=about)
-                    )
-                else:
-                    await self._client(
-                        functions.messages.EditChatAboutRequest(peer=entity, about=about)
-                    )
+                await self._client(
+                    functions.messages.EditChatAboutRequest(peer=entity, about=about)
+                )
             return {
                 "target": target,
                 "updated_title": title is not None,
