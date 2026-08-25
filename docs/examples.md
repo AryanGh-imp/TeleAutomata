@@ -175,7 +175,7 @@ never commit real member lists.
 
 ## GitHub Actions examples
 
-[`examples/github-actions/`](../examples/github-actions/) contains three
+[`examples/github-actions/`](../examples/github-actions/) contains four
 ready-to-adapt CI workflows. They live under `examples/` on purpose: GitHub only
 auto-runs workflows in the top-level `.github/workflows/` directory, so nothing
 here runs until you copy it there.
@@ -185,6 +185,12 @@ here runs until you copy it there.
 | [validate.yml](../examples/github-actions/validate.yml) | `push`, `pull_request` | No — validation never connects to Telegram. |
 | [run-manual.yml](../examples/github-actions/run-manual.yml) | `workflow_dispatch` (manual button) | Only for live runs. |
 | [scheduled.yml](../examples/github-actions/scheduled.yml) | `schedule` (cron) + manual | Only for live runs. |
+| [run-from-pypi.yml](../examples/github-actions/run-from-pypi.yml) | `workflow_dispatch` (manual button) | Only for live runs. |
+
+The first three install TeleAutomata from the checked-out source (for
+contributors and forks); `run-from-pypi.yml` installs the published package and
+runs your own `workflow.yaml` (recommended for end users). See the two approaches
+in [github-actions.md](github-actions.md#2-two-ways-to-run-teleautomata-in-ci).
 
 Credentials are always read from GitHub Secrets
 (`${{ secrets.TELEGRAM_API_ID }}`), never hard-coded. Validation is the safest and

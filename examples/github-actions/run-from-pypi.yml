@@ -1,0 +1,88 @@
+# =============================================================================
+# EXAMPLE GitHub Actions workflow — copy me into your repo's .github/workflows/
+# =============================================================================
+# END-USER (PyPI) approach. Use this when your repository contains only your own
+# workflow YAML — NOT a checkout of TeleAutomata's source. The runner installs
+# the published package with `pip install teleautomata`, and actions/checkout
+# below checks out YOUR repository (to reach the workflow file); it does not
+# clone the TeleAutomata source repository.
+#
+# Copy this to .github/workflows/run.yml in your own repo. GitHub only auto-runs
+# workflows in the top-level .github/workflows/ directory, so nothing runs until
+# you copy it there.
+#
+# NOTE: TeleAutomata is not yet published to PyPI. Until the first release lands,
+# `pip install teleautomata` will not resolve — see the "Two ways to run" section
+# of docs/github-actions.md for the interim source install.
+#
+# What it does: on a manual button press, installs TeleAutomata from PyPI,
+# validates the selected workflow, then runs it. The default target is this
+# repository's `workflow.yaml`; keep that file `dry_run: true` until you
+# deliberately intend real Telegram actions.
+#
+# ---------------------------------------------------------------------------
+# SECURITY — read before wiring real credentials
+# ---------------------------------------------------------------------------
+# * Never hard-code TELEGRAM_API_ID / TELEGRAM_API_HASH. They are read from
+#   GitHub Secrets below. Add them under: Settings > Secrets and variables >
+#   Actions > New repository secret.
+# * A *live* (non-dry-run) run also needs an authenticated Telethon *session
+#   file*, which is password-equivalent. `teleautomata auth` is interactive and
+#   cannot run on a runner, so the session must be provisioned as a secret. See
+#   "Authenticating for unattended live runs" in docs/github-actions.md. The
+#   optional restore step below shows the shape; it is commented out because the
+#   dry-run default does not need it.
+# * workflow_dispatch lets anyone with write access run workflow files against
+#   your account. Keep the repository private and limit who can trigger runs.
+# =============================================================================
+name: Run a workflow (from PyPI)
+
+on:
+  workflow_dispatch:
+    inputs:
+      workflow:
+        description: "Path to the workflow YAML in this repository"
+        required: true
+        default: "workflow.yaml"
+
+# Exposed to every step. Safe to leave wired even for dry runs: a dry run never
+# reads credentials, so an unset secret is simply unused.
+env:
+  TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+  TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # checks out THIS repo (your workflow YAML)
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12" # TeleAutomata requires 3.12+
+
+      # Install the published package. Pin for reproducible CI, e.g.
+      # `pip install teleautomata==1.0.0`.
+      - name: Install teleautomata
+        run: |
+          python -m pip install --upgrade pip
+          pip install teleautomata
+
+      # Validate first: a malformed file fails here (exit 1) before any run.
+      - name: Validate the selected workflow
+        run: teleautomata validate "${{ inputs.workflow }}"
+
+      # OPTIONAL — only for LIVE (dry_run: false) runs. Restore a Telethon
+      # session that was provisioned as a base64 secret (see the session section
+      # of docs/github-actions.md). The file name must match the workflow's
+      # `account:` value; the default SESSION_DIR is ./sessions.
+      # - name: Restore the Telegram session
+      #   run: |
+      #     mkdir -p sessions
+      #     echo "${{ secrets.TELEGRAM_SESSION_B64 }}" | base64 -d > sessions/primary.session
+
+      # --yes skips the interactive confirmation (there is no TTY in CI anyway).
+      # Dry-run files print their plan and exit 0; live files perform real
+      # actions and require the credentials + session described above.
+      - name: Run the selected workflow
+        run: teleautomata run "${{ inputs.workflow }}" --yes

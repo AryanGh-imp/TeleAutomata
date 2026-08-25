@@ -181,8 +181,9 @@ teleautomata run examples/workflows/send-message.yaml   # dry-run one
 
 Each example is indexed and explained in [docs/examples.md](docs/examples.md). To
 run workflows in CI, [`examples/github-actions/`](examples/github-actions/)
-provides copy-and-adapt templates (validate-on-push, manual, and scheduled), with
-the full walkthrough in [docs/github-actions.md](docs/github-actions.md).
+provides copy-and-adapt templates — validate-on-push, manual, scheduled, and an
+install-from-PyPI variant — with the full walkthrough in
+[docs/github-actions.md](docs/github-actions.md).
 
 ## Documentation
 
