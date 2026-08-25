@@ -20,7 +20,8 @@ require credentials.
 
 ## Quality gate
 
-Every change must pass the same checks CI runs, plus formatting:
+Every change must pass the full quality gate — the same checks CI runs on every
+push and pull request:
 
 ```bash
 ruff check .

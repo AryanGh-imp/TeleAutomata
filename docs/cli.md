@@ -83,7 +83,7 @@ panel summarising the workflow; a validation error names the offending field and
 exits non-zero. Use this as a CI gate — see [github-actions.md](github-actions.md).
 
 ```text
-╭─ ✓ Workflow valid ─╮
+╭────── ✓ Workflow valid ──────╮
 │         Name  sample-dry-run │
 │      Account  primary        │
 │      Actions  2              │
@@ -119,13 +119,13 @@ Exits non-zero only if the run as a whole failed. An action that failed under
 summary panel includes the execution id, which `resume` and `status` consume:
 
 ```text
-╭─ ✓ Workflow completed ─╮
-│  Workflow  sample-dry-run                          │
-│   Account  primary                                 │
-│ Execution  6f1e2d3c-4b5a-6789-abcd-ef0123456789    │
-│    Result  3 succeeded  ·  0 failed  ·  0 skipped   │
-│      Mode  dry run                                 │
-╰────────────────────────────────────────────────────╯
+╭────────────── ✓ Workflow completed ───────────────╮
+│  Workflow  sample-dry-run                         │
+│   Account  primary                                │
+│ Execution  6f1e2d3c-4b5a-6789-abcd-ef0123456789   │
+│    Result  0 succeeded  ·  0 failed  ·  2 skipped │
+│      Mode  dry run                                │
+╰───────────────────────────────────────────────────╯
 ```
 
 ## resume
@@ -180,17 +180,17 @@ status, attempt count, and error code where present. If no execution matches the
 id, an error panel is printed to stderr and the command exits non-zero.
 
 ```text
-╭─ Execution detail ─╮
+╭─────────────── Execution detail ────────────────╮
 │ Execution  6f1e2d3c-4b5a-6789-abcd-ef0123456789 │
-│  Workflow  sample-dry-run                        │
-│   Account  primary                               │
-│    Status  ✓ succeeded                           │
-│   Started  2026-08-24 12:00:00                   │
-│ Completed  2026-08-24 12:00:01                   │
-╰──────────────────────────────────────────────────╯
- Action           Type             Status        Attempts   Error
- create_channel   create_channel   ○ skipped            1   —
- verify_channel   resolve_target   ○ skipped            1   —
+│  Workflow  sample-dry-run                       │
+│   Account  primary                              │
+│    Status  ✓ succeeded                          │
+│   Started  2026-08-24 12:00:00                  │
+│ Completed  2026-08-24 12:00:01                  │
+╰─────────────────────────────────────────────────╯
+Action          Type            Status     Attempts  Error
+create_channel  create_channel  ○ skipped         0  —
+verify_channel  resolve_target  ○ skipped         0  —
 ```
 
 ## Exit codes
