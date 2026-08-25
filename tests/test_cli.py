@@ -102,7 +102,7 @@ def _extract_execution_id(text: str) -> str:
 def test_version_flag_prints_version() -> None:
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
-    assert "1.0.0" in result.stdout
+    assert "1.0.1" in result.stdout
 
 
 def test_help_lists_every_command_in_groups() -> None:

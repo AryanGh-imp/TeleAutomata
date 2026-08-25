@@ -282,7 +282,7 @@ and accounts you are authorized to manage. Full guidance is in
 
 ## Project status
 
-Version **1.0.0**, with a frozen public API defined in
+Version **1.0.1**, with a frozen public API defined in
 [PUBLIC_API.md](PUBLIC_API.md). Install it from PyPI with `pip install teleautomata`
 (see [Installation](#installation)).
 
