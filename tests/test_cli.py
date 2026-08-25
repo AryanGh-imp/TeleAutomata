@@ -22,6 +22,20 @@ runner = CliRunner()
 
 _UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _plain(text: str) -> str:
+    """Strip ANSI styling from captured CLI output.
+
+    Rich colourises option switches — ``--yes`` renders with an escape sequence
+    between its two dashes — so a naive ``"--yes" in output`` check fails when
+    colour is forced on, as it is in CI. Stripping styles matches what a reader
+    sees on screen and keeps help-text assertions colour-independent.
+    """
+    return _ANSI_RE.sub("", text)
+
+
 DRY_RUN_WORKFLOW = """
 version: 1
 name: sample-dry-run
@@ -112,8 +126,9 @@ def test_no_args_shows_help() -> None:
 def test_run_help_documents_yes_option() -> None:
     result = runner.invoke(app, ["run", "--help"])
     assert result.exit_code == 0
-    assert "--yes" in result.stdout
-    assert "workflow" in result.stdout
+    help_text = _plain(result.stdout)
+    assert "--yes" in help_text
+    assert "workflow" in help_text
 
 
 # --------------------------------------------------------------------------- #
