@@ -1,0 +1,39 @@
+# Per-action retry policies.
+#
+# Demonstrates: overriding retry behaviour per action. Without a `retry` block an
+#   action uses the engine default (derived from MAX_RETRIES). Bounds: max_attempts
+#   1-10, initial_delay_seconds 0.1-300, max_delay_seconds 0.1-3600 and >= initial.
+#   Retries apply to transient errors and flood-waits; bad input fails immediately.
+# Actions: resolve_target, send_message
+# Credentials: none needed while dry_run is true (delays are never slept in a dry run).
+# Validate: teleautomata validate examples/workflows/retry-policy.yaml
+# Dry run:  teleautomata run examples/workflows/retry-policy.yaml
+version: 1
+name: retry-policy
+account: primary
+dry_run: true
+actions:
+  - id: patient_lookup            # more attempts, gentle backoff for a flaky lookup
+    type: resolve_target
+    with:
+      target: "@my_channel"
+    retry:
+      max_attempts: 5
+      initial_delay_seconds: 2
+      max_delay_seconds: 120
+  - id: quick_send                # fewer attempts, tight backoff
+    type: send_message
+    depends_on: [patient_lookup]
+    with:
+      target: "@my_channel"
+      message: "Status: nominal."
+    retry:
+      max_attempts: 2
+      initial_delay_seconds: 0.5
+      max_delay_seconds: 5
+  - id: default_retry_send        # no retry block -> uses the engine default policy
+    type: send_message
+    depends_on: [patient_lookup]
+    with:
+      target: "@my_channel"
+      message: "Second notice."

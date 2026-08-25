@@ -10,6 +10,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - CLI: `--version`/`-V` and `--debug` global options, and `--yes`/`-y` on `run`
   and `resume` to skip the live-run confirmation.
+- Examples: a substantially expanded `examples/` directory — sixteen small,
+  focused, dry-run workflow files covering messaging, dialogs, entity and member
+  management, retry and `continue_on_error`, target formats, CSV inputs, and a
+  branching/fan-in DAG — plus an `examples/README.md` cookbook and sample CSV
+  data. Every example is verified in CI to load, be `dry_run: true`, reference
+  only registered actions, and pass action-argument validation offline.
+- GitHub Actions: ready-to-adapt CI templates under `examples/github-actions/`
+  (validate-on-push, manual `workflow_dispatch`, and `schedule`) and a
+  start-to-finish guide, `docs/github-actions.md`, covering secrets, dry-run
+  safety, exit codes, and the security implications of running in CI.
 
 ### Changed
 

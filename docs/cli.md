@@ -75,10 +75,12 @@ by the app; only Telethon's session file is written, and it must be kept private
 teleautomata validate <workflow.yaml>
 ```
 
-Loads and validates a workflow's structure, dependencies, and action arguments
-without any network access. On success it prints a panel summarising the
-workflow; a validation error names the offending field and exits non-zero. Use
-this in CI.
+Loads and validates a workflow's structure and dependency graph — the schema,
+unique action ids, and resolvable, acyclic dependencies — without any network
+access. (Each action's `with:` arguments are validated when the action runs, not
+here; a dry run likewise plans without checking them.) On success it prints a
+panel summarising the workflow; a validation error names the offending field and
+exits non-zero. Use this as a CI gate — see [github-actions.md](github-actions.md).
 
 ```text
 ╭─ ✓ Workflow valid ─╮

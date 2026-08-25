@@ -1,0 +1,20 @@
+# Create a group with an initial member list — entity management.
+#
+# Demonstrates: create_group. Note create_group takes an INLINE `users` list
+#   only (it does not read users_csv — that is for the *_members actions). At
+#   least one user is required.
+# Actions: create_group
+# Inputs: edit `title` and the `users` list (usernames or numeric ids as strings).
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/create-group.yaml
+# Dry run:  teleautomata run examples/workflows/create-group.yaml
+version: 1
+name: create-group
+account: primary
+dry_run: true
+actions:
+  - id: make_group
+    type: create_group
+    with:
+      title: "Project core team"
+      users: ["@alice", "@bob", "123456789"]

@@ -1,0 +1,22 @@
+# Add members from an inline list — member management.
+#
+# Demonstrates: add_members with an inline `users` list mixing usernames and a
+#   numeric id (as a string). Member actions accept `users`, `users_csv`, or
+#   both; see add-members-from-csv.yaml for the file-driven variant.
+# Actions: add_members
+# Inputs: set `target` to a group you administer; edit `users`.
+# Note: per-user failures are isolated — an unresolved user is recorded under
+#   `failed` and the batch continues.
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/add-members.yaml
+# Dry run:  teleautomata run examples/workflows/add-members.yaml
+version: 1
+name: add-members
+account: primary
+dry_run: true
+actions:
+  - id: onboard_team
+    type: add_members
+    with:
+      target: "@my_group"
+      users: ["@alice", "@bob", "@carol", "123456789"]

@@ -1,0 +1,33 @@
+# Manage your dialog list — mute, pin, archive, and unread flags.
+#
+# Demonstrates: the dialog actions, which operate on YOUR OWN view of a chat
+#   (not the chat's members). Each takes a single `target`.
+# Actions: mute_dialog, pin_dialog, mark_unread, archive_chat, unmute_dialog
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/manage-dialogs.yaml
+# Dry run:  teleautomata run examples/workflows/manage-dialogs.yaml
+version: 1
+name: manage-dialogs
+account: primary
+dry_run: true
+actions:
+  - id: silence_noisy_group
+    type: mute_dialog
+    with:
+      target: "@noisy_group"
+  - id: keep_team_chat_on_top
+    type: pin_dialog
+    with:
+      target: "@team_chat"
+  - id: flag_for_followup
+    type: mark_unread
+    with:
+      target: "@support_chat"
+  - id: tidy_away_finished_project
+    type: archive_chat
+    with:
+      target: "@finished_project"
+  - id: reopen_group_notifications
+    type: unmute_dialog
+    with:
+      target: "@announcements"

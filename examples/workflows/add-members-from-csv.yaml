@@ -1,0 +1,22 @@
+# Add members from a CSV file (plus a few inline) — member management.
+#
+# Demonstrates: users_csv input. The file has one target per line (or
+#   comma-separated); it is merged with any inline `users` and de-duplicated,
+#   keeping first-seen order.
+# Actions: add_members
+# Inputs: point `users_csv` at your own file; see examples/samples/team.csv.
+#   Paths are resolved from the current working directory (run from the repo root).
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/add-members-from-csv.yaml
+# Dry run:  teleautomata run examples/workflows/add-members-from-csv.yaml
+version: 1
+name: add-members-from-csv
+account: primary
+dry_run: true
+actions:
+  - id: bulk_onboard
+    type: add_members
+    with:
+      target: "@my_group"
+      users: ["@team_lead"]                       # merged with the file below
+      users_csv: "examples/samples/team.csv"

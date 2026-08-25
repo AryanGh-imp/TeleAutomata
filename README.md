@@ -62,6 +62,25 @@ that demonstrates the pattern for adding more, not an exhaustive one. Actions ru
 only after their dependencies complete successfully. A failed dependency skips
 its descendants, and each action has a durable history record.
 
+## Examples
+
+The [`examples/`](examples/) directory is a runnable cookbook. It holds sixteen
+small, focused workflows — messaging, dialogs, entity and member management,
+retry and `continue_on_error`, every accepted target format, CSV-driven member
+lists, and a branching/fan-in DAG — each documented with what it demonstrates
+and the exact commands to validate and dry-run it. All ship with `dry_run: true`,
+so they are safe to run as-is with no credentials. Start with
+[`examples/README.md`](examples/README.md).
+
+```powershell
+teleautomata list examples/workflows                       # validate all sixteen
+teleautomata run examples/workflows/send-message.yaml      # dry-run one
+```
+
+To run workflows in CI, [`examples/github-actions/`](examples/github-actions/)
+provides copy-and-adapt GitHub Actions templates (validate-on-push, manual, and
+scheduled); [docs/github-actions.md](docs/github-actions.md) is the full guide.
+
 ## Operational safety
 
 The framework defaults to running at most two actions concurrently (`MAX_CONCURRENCY`) and a one-second minimum interval between requests to an account. Telegram does not publish a universal safe throughput, so configure conservatively and observe real API responses. `FLOOD_WAIT` pauses for Telegram’s requested time; waits above `MAX_FLOOD_WAIT_SECONDS` fail safely for review. Invalid requests, missing permissions, privacy restrictions, and unauthorized accounts are terminal rather than endlessly retried.
@@ -76,7 +95,7 @@ Use it only for entities and accounts you are authorized to manage. This project
 - Run one worker for a given account session; isolate workers for multiple accounts.
 - Export structured JSON logs to your central log service, without credentials or message content.
 
-See [architecture](docs/architecture.md), [API & interfaces](docs/api.md), [workflow engine](docs/workflow-engine.md), [actions](docs/actions.md), [CLI](docs/cli.md), [Telegram integration](docs/telegram-integration.md), [configuration](docs/configuration.md), [security](docs/security.md), [testing](docs/testing.md), [development](docs/development.md), [extending](docs/extending.md), [FAQ](docs/faq.md), and [troubleshooting](docs/troubleshooting.md).
+See [architecture](docs/architecture.md), [API & interfaces](docs/api.md), [workflow engine](docs/workflow-engine.md), [actions](docs/actions.md), [CLI](docs/cli.md), [Telegram integration](docs/telegram-integration.md), [configuration](docs/configuration.md), [security](docs/security.md), [GitHub Actions](docs/github-actions.md), [testing](docs/testing.md), [development](docs/development.md), [extending](docs/extending.md), [FAQ](docs/faq.md), and [troubleshooting](docs/troubleshooting.md).
 
 ## Development
 

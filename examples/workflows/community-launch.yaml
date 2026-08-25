@@ -1,0 +1,58 @@
+# Community launch — a realistic multi-step workflow with branching and fan-in.
+#
+# Demonstrates: a dependency graph that is more than a straight line. Actions
+#   whose dependencies have all completed run in the same batch; a failed or
+#   skipped dependency skips its descendants (unless it set continue_on_error).
+#
+#              check
+#             /     \
+#        set_topic   welcome
+#                    /     \
+#              pin_welcome   cross_post
+#               \
+#                notify_team   <- fan-in: waits for set_topic AND pin_welcome
+#
+# Actions: resolve_target, update_entity, send_message, pin_message, forward_message
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/community-launch.yaml
+# Dry run:  teleautomata run examples/workflows/community-launch.yaml
+version: 1
+name: community-launch
+account: primary
+dry_run: true
+actions:
+  - id: check
+    type: resolve_target
+    with:
+      target: "@my_channel"
+  - id: set_topic
+    type: update_entity
+    depends_on: [check]
+    with:
+      target: "@my_channel"
+      about: "Launch week — updates land here."
+  - id: welcome
+    type: send_message
+    depends_on: [check]
+    with:
+      target: "@my_channel"
+      message: "Welcome! Launch announcements start today."
+  - id: pin_welcome
+    type: pin_message
+    depends_on: [welcome]
+    with:
+      target: "@my_channel"
+      message_id: 2001
+  - id: cross_post
+    type: forward_message
+    depends_on: [welcome]
+    with:
+      from_target: "@my_channel"
+      to_target: "@my_group"
+      message_id: 2001
+  - id: notify_team
+    type: send_message
+    depends_on: [set_topic, pin_welcome]
+    with:
+      target: "@my_group"
+      message: "Channel is prepped: topic set and welcome pinned."

@@ -1,0 +1,48 @@
+# =============================================================================
+# EXAMPLE GitHub Actions workflow — copy me into your repo's .github/workflows/
+# =============================================================================
+# This file lives under examples/ on purpose. GitHub only auto-runs workflows in
+# the top-level .github/workflows/ directory, so nothing here runs until you copy
+# it there. To use it: copy this file to .github/workflows/validate.yml in your
+# own repository, commit, and push.
+#
+# What it does: validates every example workflow on each push and pull request.
+# `teleautomata validate` only reads and schema-checks the YAML — it never
+# connects to Telegram — so this job needs NO credentials and NO secrets. It is
+# the safest possible CI gate and a good first workflow to adopt.
+#
+# Exit codes: `teleautomata validate` exits 1 on the first invalid file, which
+# fails the step (GitHub bash steps run with `set -e`) and therefore the job.
+# A green check means every workflow parsed and passed schema + DAG validation.
+# =============================================================================
+name: Validate workflows
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Install the CLI. This assumes teleautomata is checked out here (the repo
+      # root has pyproject.toml). If instead you depend on it, replace this with
+      # your own install step (e.g. `pip install teleautomata` from your index).
+      - name: Install teleautomata
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      - name: Validate every example workflow
+        run: |
+          for file in examples/workflows/*.yaml; do
+            echo "::group::$file"
+            teleautomata validate "$file"
+            echo "::endgroup::"
+          done

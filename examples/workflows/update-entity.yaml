@@ -1,0 +1,20 @@
+# Update an entity's title and description — entity management.
+#
+# Demonstrates: update_entity. At least one of `title` or `about` is required;
+#   an empty update is rejected. Provide either or both.
+# Actions: update_entity
+# Inputs: set `target` to a channel/group you administer.
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/update-entity.yaml
+# Dry run:  teleautomata run examples/workflows/update-entity.yaml
+version: 1
+name: update-entity
+account: primary
+dry_run: true
+actions:
+  - id: refresh_profile
+    type: update_entity
+    with:
+      target: "@my_channel"
+      title: "Release Notes (2026)"
+      about: "Product announcements and changelog highlights."

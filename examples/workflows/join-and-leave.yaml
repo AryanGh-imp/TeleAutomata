@@ -1,0 +1,29 @@
+# Join and leave channels and groups — membership.
+#
+# Demonstrates: joining/leaving channels and groups, including a private group
+#   via a t.me/+hash invite link. Each action takes a single `target`.
+# Actions: join_channel, join_group, leave_channel, leave_group
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/join-and-leave.yaml
+# Dry run:  teleautomata run examples/workflows/join-and-leave.yaml
+version: 1
+name: join-and-leave
+account: primary
+dry_run: true
+actions:
+  - id: join_public_channel
+    type: join_channel
+    with:
+      target: "@some_public_channel"
+  - id: join_private_group
+    type: join_group
+    with:
+      target: "https://t.me/+AbCdEfGhIjKlMnOp"   # private invite link
+  - id: leave_old_channel
+    type: leave_channel
+    with:
+      target: "@some_old_channel"
+  - id: leave_finished_group
+    type: leave_group
+    with:
+      target: "@finished_project_group"

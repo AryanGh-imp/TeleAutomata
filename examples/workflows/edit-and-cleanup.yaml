@@ -1,0 +1,33 @@
+# Edit and clean up messages.
+#
+# Demonstrates: editing an existing message, deleting one, unpinning ALL pinned
+#   messages (omit message_id), and marking a chat read. Integer message_id
+#   arguments reject booleans, so they must be real integers.
+# Actions: edit_message, delete_message, unpin_message, mark_read
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/edit-and-cleanup.yaml
+# Dry run:  teleautomata run examples/workflows/edit-and-cleanup.yaml
+version: 1
+name: edit-and-cleanup
+account: primary
+dry_run: true
+actions:
+  - id: fix_typo
+    type: edit_message
+    with:
+      target: "@my_channel"
+      message_id: 1001
+      message: "We just shipped v1.0 — corrected link below."
+  - id: remove_outdated
+    type: delete_message
+    with:
+      target: "@my_channel"
+      message_id: 990
+  - id: clear_all_pins
+    type: unpin_message          # no message_id -> unpins every pinned message
+    with:
+      target: "@my_channel"
+  - id: mark_caught_up
+    type: mark_read
+    with:
+      target: "@my_channel"

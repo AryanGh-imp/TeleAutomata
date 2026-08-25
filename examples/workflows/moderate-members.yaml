@@ -1,0 +1,36 @@
+# Moderate members — remove, ban, and restrict rights.
+#
+# Demonstrates: the moderation actions and the restrict_members `permissions`
+#   mapping. remove_members kicks without a lasting ban; ban_members revokes all
+#   rights; restrict_members toggles individual rights (false = remove a right,
+#   true = grant it; at least one right is required). A CSV drives the ban list.
+# Actions: remove_members, ban_members, restrict_members
+# Inputs: set `target`; edit the user lists / examples/samples/spammers.csv.
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/moderate-members.yaml
+# Dry run:  teleautomata run examples/workflows/moderate-members.yaml
+version: 1
+name: moderate-members
+account: primary
+dry_run: true
+actions:
+  - id: remove_inactive
+    type: remove_members
+    with:
+      target: "@my_group"
+      users: ["@former_member"]
+  - id: ban_spammers
+    type: ban_members
+    with:
+      target: "@my_group"
+      users_csv: "examples/samples/spammers.csv"
+  - id: restrict_link_posters
+    type: restrict_members
+    with:
+      target: "@my_group"
+      users: ["@link_spammer"]
+      # false removes the right; omitted rights stay as they are.
+      permissions:
+        send_media: false
+        send_stickers: false
+        embed_link_previews: false

@@ -1,0 +1,25 @@
+# Announce and pin — a two-step message flow with a dependency.
+#
+# Demonstrates: depends_on ordering. `pin_announcement` only runs after
+#   `announce` succeeds. The message_id here is illustrative; a live run would
+#   pin the id the send returns (chain the value yourself, or split into two runs).
+# Actions: send_message, pin_message
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/announce-and-pin.yaml
+# Dry run:  teleautomata run examples/workflows/announce-and-pin.yaml
+version: 1
+name: announce-and-pin
+account: primary
+dry_run: true
+actions:
+  - id: announce
+    type: send_message
+    with:
+      target: "@my_channel"
+      message: "We just shipped v1.0."
+  - id: pin_announcement
+    type: pin_message
+    depends_on: [announce]
+    with:
+      target: "@my_channel"
+      message_id: 1001

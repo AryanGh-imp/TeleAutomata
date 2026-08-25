@@ -1,0 +1,19 @@
+# Send a message — the smallest useful workflow.
+#
+# Demonstrates: a single action and the two arguments every message needs
+#   (target + message). A good first file to read.
+# Actions: send_message
+# Inputs: set `target` to a chat/channel you manage and edit `message`.
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/send-message.yaml
+# Dry run:  teleautomata run examples/workflows/send-message.yaml
+version: 1
+name: send-message
+account: primary
+dry_run: true
+actions:
+  - id: greet
+    type: send_message
+    with:
+      target: "@my_channel"
+      message: "Hello from TeleAutomata."

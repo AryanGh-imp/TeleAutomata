@@ -38,6 +38,19 @@ credentials and no network access**. It is the safe default for trying a
 workflow. `teleautomata validate` goes further and checks a file without
 running anything at all.
 
+## Can I run workflows in CI (e.g. GitHub Actions)?
+
+Yes, and validation is the recommended use. `teleautomata validate` never
+connects to Telegram, so a CI job that validates your workflow files on every
+push needs no credentials and is completely safe — it is the ideal gate. You can
+also run workflows on a manual trigger or a schedule; keep those pointed at
+`dry_run: true` files unless you deliberately set up a live run, which
+additionally needs an authenticated session file (password-equivalent) in the
+runner. Copy-and-adapt templates live in
+[`examples/github-actions/`](../examples/github-actions/), and
+[github-actions.md](github-actions.md) is the full walkthrough, including secrets
+handling and exit codes.
+
 ## What happens when Telegram rate-limits me?
 
 A flood-wait becomes a `RateLimitError` carrying the wait Telegram asked for. The

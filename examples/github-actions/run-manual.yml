@@ -1,0 +1,67 @@
+# =============================================================================
+# EXAMPLE GitHub Actions workflow — copy me into your repo's .github/workflows/
+# =============================================================================
+# Manual, on-demand execution. GitHub only auto-runs workflows in the top-level
+# .github/workflows/ directory, so copy this file there (e.g.
+# .github/workflows/run-manual.yml) to enable the "Run workflow" button under
+# the repository's Actions tab.
+#
+# What it does: lets you pick a workflow file from a dropdown and run it. The
+# default target is a dry-run example, so the out-of-the-box behaviour performs
+# NO real Telegram actions and needs no credentials.
+#
+# ---------------------------------------------------------------------------
+# SECURITY — read before wiring real credentials
+# ---------------------------------------------------------------------------
+# * Never hard-code TELEGRAM_API_ID / TELEGRAM_API_HASH. They are read from
+#   GitHub Secrets below. Add them under: Settings > Secrets and variables >
+#   Actions > New repository secret.
+# * A *live* (non-dry-run) run also needs an authenticated Telethon *session
+#   file*, which is password-equivalent. This example does NOT provision one, so
+#   pointing it at a live workflow will fail at connect time unless you supply a
+#   session yourself — an advanced, discouraged setup. See docs/github-actions.md.
+# * `workflow_dispatch` lets anyone with write access run arbitrary workflow
+#   files against your account. Keep the repository private and limit who can
+#   trigger runs. Treat the ability to dispatch as equivalent to account access.
+# * Keep dry_run: true in a file until you have deliberately reviewed it.
+# =============================================================================
+name: Run a workflow (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      workflow:
+        description: "Path to the workflow YAML to run"
+        required: true
+        default: "examples/workflows/send-message.yaml"
+
+# Exposed to every step. Safe to leave wired even for dry runs: an empty secret
+# is simply unused, because a dry run never reads credentials.
+env:
+  TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+  TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install teleautomata
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      # Validate first: a malformed file fails here (exit 1) before any run.
+      - name: Validate the selected workflow
+        run: teleautomata validate "${{ inputs.workflow }}"
+
+      # --yes skips the interactive confirmation (there is no TTY in CI anyway).
+      # Dry-run files print their plan and exit 0; live files perform real
+      # actions and require the credentials + session described above.
+      - name: Run the selected workflow
+        run: teleautomata run "${{ inputs.workflow }}" --yes

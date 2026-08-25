@@ -1,3 +1,15 @@
+# Create a broadcast channel, then verify it — entity management.
+#
+# Demonstrates: create_channel (broadcast vs megagroup), a per-action retry
+#   override, and a dependent resolve_target that only runs after creation.
+# Actions: create_channel, resolve_target
+# Inputs: edit `title`/`about`; set `verify_channel`'s target to the public
+#   @username you assign the new channel.
+# Credentials: none needed while dry_run is true — the plan is built offline.
+# Validate: teleautomata validate examples/workflows/create-channel.yaml
+# Dry run:  teleautomata run examples/workflows/create-channel.yaml
+# Go live:  set dry_run: false, run `teleautomata auth primary`, then
+#           `teleautomata run examples/workflows/create-channel.yaml --yes`.
 version: 1
 name: launch-announcement-channel
 account: primary

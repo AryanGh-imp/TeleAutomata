@@ -1,0 +1,25 @@
+# Forward and reply.
+#
+# Demonstrates: forwarding a message from one chat to another, and replying to
+#   a specific message so it threads under the original.
+# Actions: forward_message, reply_message
+# Credentials: none needed while dry_run is true.
+# Validate: teleautomata validate examples/workflows/forward-and-reply.yaml
+# Dry run:  teleautomata run examples/workflows/forward-and-reply.yaml
+version: 1
+name: forward-and-reply
+account: primary
+dry_run: true
+actions:
+  - id: forward_notice
+    type: forward_message
+    with:
+      from_target: "@my_channel"
+      to_target: "@my_group"
+      message_id: 1001
+  - id: reply_in_thread
+    type: reply_message
+    with:
+      target: "@my_group"
+      reply_to_message_id: 5
+      message: "Cross-posting the release note above."
