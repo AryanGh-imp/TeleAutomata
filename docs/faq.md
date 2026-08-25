@@ -92,13 +92,10 @@ action count.
 
 ## How do I run the tests and checks?
 
-```bash
-ruff check . && ruff format --check . && mypy src && pytest && python -m build
-```
-
-Tests use in-memory SQLite and a fake gateway, so they are fast and need no
-credentials. Every change should keep this gate green. See
-[testing](testing.md) and [development](development.md).
+Run the full quality gate before every change; the exact commands are in
+[Contributing → Quality gate](../CONTRIBUTING.md#quality-gate). Tests use
+in-memory SQLite and a fake gateway, so they are fast and need no credentials.
+See [testing](testing.md) and [development](development.md).
 
 ## Which Python versions are supported?
 

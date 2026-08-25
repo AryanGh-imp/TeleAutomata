@@ -6,7 +6,7 @@
 #   dependency skips everything downstream and fails the run.
 #
 #   Under dry_run nothing executes, so nothing actually fails here — this file
-#   shows the SHAPE. See examples/README.md to observe the behaviour on a live run.
+#   shows the SHAPE. See docs/examples.md to observe the behaviour on a live run.
 # Actions: resolve_target, send_message
 # Credentials: none needed while dry_run is true.
 # Validate: teleautomata validate examples/workflows/continue-on-error.yaml

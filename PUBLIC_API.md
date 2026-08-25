@@ -94,9 +94,10 @@ Validation guarantees (stable): action ids are unique, `depends_on` references
 resolve, the dependency graph is acyclic, and every argument is type-checked
 before any network call.
 
-Runnable, categorized examples of this schema live in
-[examples/](examples/README.md); [docs/github-actions.md](docs/github-actions.md)
-covers running them in CI.
+[docs/workflows.md](docs/workflows.md) is the full authoring guide for this
+schema; runnable, categorized examples live in [examples/](examples/), indexed
+and explained in [docs/examples.md](docs/examples.md), and
+[docs/github-actions.md](docs/github-actions.md) covers running them in CI.
 
 ### 3. Actions
 

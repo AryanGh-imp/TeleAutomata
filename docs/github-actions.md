@@ -360,4 +360,4 @@ jobs:
 
 To go further, adapt the dedicated example files in
 [`examples/github-actions/`](../examples/github-actions/) and read the
-[examples cookbook](../examples/README.md).
+[examples guide](examples.md).

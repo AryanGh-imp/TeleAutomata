@@ -1,27 +1,11 @@
 # API and public interfaces
 
-This page maps the public building blocks of TeleAutomata and how they compose,
-for contributors and anyone embedding the engine. It complements the conceptual
-[architecture](architecture.md) overview: read that first for the ports-and-
-adapters rationale, then use this as the interface reference.
-
-## Package layout
-
-```text
-teleautomata/
-├── domain/          # pure core: models, errors, the gateway port
-├── application/     # orchestration: engine, action registry
-├── infrastructure/  # adapters: Telethon, persistence, pacing, null gateway
-├── workflows/       # workflow schema and loader
-├── config/          # settings
-├── observability/   # logging
-└── cli/             # Typer entry point and Rich presentation layer
-```
-
-Dependencies point inward: `domain` imports nothing from the framework,
-`application` depends only on `domain`, and `infrastructure` implements
-`domain`'s contracts. This is what lets tests swap the real Telethon adapter for
-a fake gateway.
+This page is the interface reference for embedding TeleAutomata or driving it
+from your own Python: the public types, the engine's signature, and how to wire a
+run yourself. Read [architecture.md](architecture.md) first for the layers, the
+[package layout](architecture.md#package-layout), and the dependency direction;
+see [../PUBLIC_API.md](../PUBLIC_API.md) for which of these names the stability
+contract covers.
 
 ## Domain
 
@@ -100,8 +84,9 @@ See the [extension guide](extending.md) for adding an action.
 ## Infrastructure
 
 - **`infrastructure/telegram.py`** — `TelethonGateway`, the real adapter, and
-  `connect_gateway(...)`, which opens an authenticated session. All Telethon
-  exceptions cross a single boundary (`_raise_translated`) into domain errors.
+  `connect_gateway(...)`, which opens an authenticated session. It translates
+  Telethon exceptions into domain errors at a single boundary; the mapping is in
+  [telegram-integration.md](telegram-integration.md#anti-corruption-boundary).
 - **`infrastructure/null_gateway.py`** — `NullGateway`, used for dry runs; every
   method raises, so a plan can be inspected without credentials or network.
 - **`infrastructure/persistence.py`** — `OperationRepository` (execution and

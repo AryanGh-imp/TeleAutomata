@@ -176,7 +176,7 @@ def test_gha_examples_demonstrate_secrets_usage() -> None:
     assert any("${{ secrets.TELEGRAM_API_HASH }}" in t for t in texts)
 
 
-def test_examples_readme_and_docs_exist() -> None:
-    """The cookbook and the CI guide the examples point at must be present."""
-    assert (EXAMPLES / "README.md").is_file()
+def test_examples_docs_exist() -> None:
+    """The examples guide and the CI guide the examples point at must be present."""
+    assert (REPO_ROOT / "docs" / "examples.md").is_file()
     assert (REPO_ROOT / "docs" / "github-actions.md").is_file()

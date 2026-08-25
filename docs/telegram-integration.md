@@ -7,11 +7,11 @@ outside `infrastructure/` imports Telethon.
 
 ## The gateway contract
 
-`TelegramGateway` exposes one typed coroutine per supported operation:
-`create_group`, `create_channel`, `update_entity`, `send_message`, and
-`resolve_target`. Each returns a plain `dict[str, Any]` result. The engine and
-action dispatcher depend only on this protocol, which is what lets tests
-substitute an in-memory fake.
+`TelegramGateway` exposes one typed coroutine per action — 29 in total, spanning
+group and channel creation, messaging, dialog management, membership, and member
+management (see [actions.md](actions.md) for the full catalog). Each returns a
+plain `dict[str, Any]` result. The engine and action dispatcher depend only on
+this protocol, which is what lets tests substitute an in-memory fake.
 
 ## Anti-corruption boundary
 

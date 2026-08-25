@@ -54,6 +54,7 @@ the filesystem.
 
 ## Before committing
 
-Run the full quality gate — `ruff check .`, `ruff format --check .`,
-`mypy src`, `pytest`, and `python -m build`. CI runs the same checks (except the
-format check, which you should run locally).
+Run the full quality gate — the exact commands are in
+[Contributing → Quality gate](../CONTRIBUTING.md#quality-gate). CI runs the same
+checks except `ruff format --check`, so run the formatter locally before you
+commit.

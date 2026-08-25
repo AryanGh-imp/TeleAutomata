@@ -134,14 +134,12 @@ gives, asserted in CI.
 
 ## Before you commit
 
-Run the full gate and keep it green:
+Run the full quality gate and keep it green — the exact commands are in
+[Contributing → Quality gate](../CONTRIBUTING.md#quality-gate).
 
-```bash
-ruff check . && ruff format --check . && mypy src && pytest && python -m build
-```
-
-Then add an example workflow under `examples/workflows/` using `dry_run: true`,
-and update `CHANGELOG.md`. Actions that map to an MTProto call another action
-already makes should not be duplicated — document the alias instead, as the
-roadmap does for `kick`/`remove_members` and `restore`/`unban_members`. API
-stability and a small, coherent library matter more than raw action count.
+Then add an example workflow under `examples/workflows/` using `dry_run: true`.
+Actions that map to an MTProto call another action already makes should not be
+duplicated — document the alias instead (for example `kick` folds into
+`remove_members`, and `restore` into `unban_members`, since each issues the same
+MTProto call). API stability and a small, coherent library matter more than raw
+action count.
