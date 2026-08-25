@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/logo.png" alt="TeleAutomata logo" width="180" />
+<img src="docs/assets/teleautomata_logo.gif" alt="TeleAutomata logo" />
 
 <h1>TeleAutomata</h1>
 
@@ -81,11 +81,15 @@ Requires **Python 3.12+**. The project is not yet published to a package index;
 install it from source:
 
 ```bash
-git clone <your-clone-url> teleautomata
-cd teleautomata
+git clone https://github.com/AryanGh-imp/TeleAutomata.git
+cd TeleAutomata
+
 python -m venv .venv
-source .venv/bin/activate          # Windows: .\.venv\Scripts\Activate.ps1
-pip install -e ".[dev]"            # add ,postgres for the PostgreSQL driver
+source .venv/bin/activate          # Linux/macOS
+# Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+
+pip install -e ".[dev]"            # Add ,postgres for PostgreSQL support
 ```
 
 ## Quick start

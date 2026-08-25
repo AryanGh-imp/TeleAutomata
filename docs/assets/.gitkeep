@@ -1,6 +1,0 @@
-# Documentation assets live here.
-#
-# The README references docs/assets/logo.png via an <img> tag; drop a real
-# logo image at that path and it will appear automatically. This .gitkeep
-# exists only so the directory is tracked while the assets are still empty.
-# Do not commit large binaries here without reason.
