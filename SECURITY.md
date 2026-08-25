@@ -3,8 +3,7 @@
 ## Supported versions
 
 TeleAutomata is versioned with [Semantic Versioning](https://semver.org/).
-Security fixes target the latest released minor version. Until 1.0 is tagged,
-only the `main` branch is supported.
+Security fixes target the latest released minor version.
 
 ## Reporting a vulnerability
 
