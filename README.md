@@ -11,6 +11,9 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT" /></a>
   <img src="https://img.shields.io/badge/lint-ruff-261230.svg" alt="Linted with Ruff" />
   <img src="https://img.shields.io/badge/types-mypy%20strict-2a6db2.svg" alt="Type-checked with mypy (strict)" />
+  <!-- Enable once published to PyPI:
+  <a href="https://pypi.org/project/teleautomata/"><img src="https://img.shields.io/pypi/v/teleautomata.svg" alt="PyPI version" /></a>
+  -->
 </p>
 
 </div>
