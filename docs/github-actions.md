@@ -70,12 +70,6 @@ is the right approach for normal use: automating your own groups and channels
 from your own repo. The template is
 [`run-from-pypi.yml`](../examples/github-actions/run-from-pypi.yml).
 
-> **Availability.** TeleAutomata is **not yet published to PyPI** (see the README
-> project-status note). Until the first release lands, `pip install teleautomata`
-> will not resolve — use Approach B in the meantime, or install from a git ref
-> (`pip install "git+https://github.com/AryanGh-imp/TeleAutomata.git"`). Once
-> published, pin a version for reproducible CI (`pip install teleautomata==1.0.0`).
-
 ### Approach B — run from a source checkout (for contributors / development)
 
 The workflow files live **inside** a checkout of the TeleAutomata repository (or
@@ -486,9 +480,7 @@ jobs:
 ```
 
 For a live run, add a session-restore step before `run` as described in
-[§10](#10-authenticating-for-unattended-live-runs). (TeleAutomata is not yet on
-PyPI — until it is, use Approach B or a git install per
-[§2](#2-two-ways-to-run-teleautomata-in-ci).)
+[§10](#10-authenticating-for-unattended-live-runs).
 
 ### Approach B — contributor, run from a checkout
 

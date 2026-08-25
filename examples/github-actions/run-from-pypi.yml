@@ -11,10 +11,6 @@
 # workflows in the top-level .github/workflows/ directory, so nothing runs until
 # you copy it there.
 #
-# NOTE: TeleAutomata is not yet published to PyPI. Until the first release lands,
-# `pip install teleautomata` will not resolve — see the "Two ways to run" section
-# of docs/github-actions.md for the interim source install.
-#
 # What it does: on a manual button press, installs TeleAutomata from PyPI,
 # validates the selected workflow, then runs it. The default target is this
 # repository's `workflow.yaml`; keep that file `dry_run: true` until you

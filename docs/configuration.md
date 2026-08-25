@@ -1,8 +1,9 @@
 # Configuration
 
 TeleAutomata is configured entirely through environment variables, read on
-startup by a pydantic-settings model. For local development, copy `.env.example`
-to `.env` and fill it in; values in the real environment take precedence over
+startup by a pydantic-settings model. Set them in your environment, or create a
+`.env` file in the working directory (the repository ships `.env.example` as a
+template you can copy); values in the real environment take precedence over
 `.env`, and unknown variables are ignored. Credentials are read **only** from the
 environment or `.env` and are never written to YAML, logs, command-line
 arguments, or the operation database.

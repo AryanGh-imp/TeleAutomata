@@ -77,8 +77,22 @@ design, diagrams, and rationale.
 
 ## Installation
 
-Requires **Python 3.12+**. The project is not yet published to a package index;
-install it from source:
+TeleAutomata is a Python package and command-line tool. Install it from PyPI with
+[pip](https://pip.pypa.io/) — this is the standard, recommended way to use it, and
+cloning the repository is **not** required:
+
+```bash
+pip install teleautomata
+teleautomata --version
+```
+
+It requires **Python 3.12+**. For PostgreSQL support, install the extra:
+`pip install "teleautomata[postgres]"`.
+
+### Installing from source — for contributors and development
+
+Clone the repository only if you intend to develop TeleAutomata, run a fork, or work
+on the in-tree examples:
 
 ```bash
 git clone https://github.com/AryanGh-imp/TeleAutomata.git
@@ -92,18 +106,44 @@ source .venv/bin/activate          # Linux/macOS
 pip install -e ".[dev]"            # Add ,postgres for PostgreSQL support
 ```
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full development workflow.
+
 ## Quick start
 
+After installing, work from any directory of your own — no clone required. First
+create the local runtime directories and database:
+
 ```bash
-cp .env.example .env               # then add your API id/hash from my.telegram.org
-teleautomata init                  # create runtime dirs + database
-teleautomata validate examples/workflows/create-channel.yaml
-teleautomata run examples/workflows/create-channel.yaml
+teleautomata init                  # create runtime dirs + database in the current directory
 ```
 
-That example is `dry_run: true`, so it records a planned execution but makes no
-Telegram request and needs no credentials. Authenticate an account only when you
-are ready to run for real:
+Then write a `workflow.yaml`. This one sends a message but ships as a dry run, so it
+needs no credentials:
+
+```yaml
+version: 1
+name: send-message
+account: primary
+dry_run: true
+actions:
+  - id: greet
+    type: send_message
+    with:
+      target: "@my_channel"
+      message: "Hello from TeleAutomata."
+```
+
+Validate it, then run it:
+
+```bash
+teleautomata validate workflow.yaml
+teleautomata run workflow.yaml
+```
+
+Because `dry_run: true`, that run records a planned execution but makes no Telegram
+request. To run for real, provide your API id/hash from
+[my.telegram.org](https://my.telegram.org) — as environment variables or in a `.env`
+file in the working directory — authenticate the account, and set `dry_run: false`:
 
 ```bash
 teleautomata auth primary          # interactive phone / 2FA; nothing is stored but the session
@@ -112,7 +152,7 @@ teleautomata auth primary          # interactive phone / 2FA; nothing is stored 
 Inspect workflows and past runs at any time, without connecting to Telegram:
 
 ```bash
-teleautomata list examples/workflows   # validate and summarize every workflow
+teleautomata list .                    # validate and summarize every workflow in a directory
 teleautomata history                   # recent executions
 teleautomata status <execution-id>     # per-action detail for one execution
 ```
@@ -120,11 +160,15 @@ teleautomata status <execution-id>     # per-action detail for one execution
 If a run is interrupted, resume it without repeating completed work:
 
 ```bash
-teleautomata resume <workflow.yaml> <execution-id>
+teleautomata resume workflow.yaml <execution-id>
 ```
 
 > **Never** commit `.env` or the `sessions/` directory. Credentials come only
 > from the environment or `.env`, and a session file is account access material.
+
+The repository's [`examples/`](examples/) directory is a reference cookbook of
+ready-made workflows — browse it for patterns, and copy any file into your own
+project as a starting point.
 
 ## Workflow format
 
@@ -239,8 +283,8 @@ and accounts you are authorized to manage. Full guidance is in
 ## Project status
 
 Version **1.0.0**, with a frozen public API defined in
-[PUBLIC_API.md](PUBLIC_API.md). The project is **not yet published** to PyPI —
-install from source as shown above.
+[PUBLIC_API.md](PUBLIC_API.md). Install it from PyPI with `pip install teleautomata`
+(see [Installation](#installation)).
 
 ## License
 

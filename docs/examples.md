@@ -96,8 +96,10 @@ The full catalogue of all 29 actions and their arguments is in
 ## Validating and dry-running
 
 Run commands from the repository root so relative paths such as
-`examples/samples/team.csv` resolve. With the package installed
-(`pip install -e ".[dev]"`) and `teleautomata init` run once:
+`examples/samples/team.csv` resolve. These commands run the workflows that ship in
+this repository, so they assume a source checkout. If you installed TeleAutomata
+from PyPI, copy an example's YAML into your own project (or write your own) and point
+`validate` and `run` at your file instead. With `teleautomata init` run once:
 
 ```bash
 teleautomata validate examples/workflows/send-message.yaml
@@ -187,10 +189,11 @@ here runs until you copy it there.
 | [scheduled.yml](../examples/github-actions/scheduled.yml) | `schedule` (cron) + manual | Only for live runs. |
 | [run-from-pypi.yml](../examples/github-actions/run-from-pypi.yml) | `workflow_dispatch` (manual button) | Only for live runs. |
 
-The first three install TeleAutomata from the checked-out source (for
-contributors and forks); `run-from-pypi.yml` installs the published package and
-runs your own `workflow.yaml` (recommended for end users). See the two approaches
-in [github-actions.md](github-actions.md#2-two-ways-to-run-teleautomata-in-ci).
+For normal use, `run-from-pypi.yml` is the recommended template: it installs the
+published package and runs your own `workflow.yaml`, so your repository needs only
+your workflow file and the CI file. The other three install TeleAutomata from the
+checked-out source, for contributors and forks. See the two approaches in
+[github-actions.md](github-actions.md#2-two-ways-to-run-teleautomata-in-ci).
 
 Credentials are always read from GitHub Secrets
 (`${{ secrets.TELEGRAM_API_ID }}`), never hard-coded. Validation is the safest and
